@@ -2,8 +2,13 @@ import axios from "axios";
 import React, {useEffect, useRef, useState} from "react";
 import Loading from "../components/Loading";
 import { auth } from "../lib/firebaseClient.js";
+import * as pdfjsLib from "pdfjs-dist";
+import mammoth from "mammoth";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export default function InterviewCoach(){
+    const [mode, setMode] = useState(null);
     const [jobRole, setJobRole] = useState('');
     const [initialQuestion, setInitialQuestion] = useState('');
     const [currentUserAnswer, setCurrentUserAnswer] = useState('');
@@ -13,6 +18,11 @@ export default function InterviewCoach(){
     const [error, setError] = useState('');
     const [userId, setUserId] = useState(null);
     const [currentConversationId, setCurrentConversationId] = useState(null);
+    const [resumeText, setResumeText] = useState("");
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [greeting, setGreeting] = useState(false);
+    const [sessionStarted, setSessionStarted] = useState(false);
+
 
     const messagesEndRef = useRef(null);
 
@@ -46,6 +56,55 @@ export default function InterviewCoach(){
         ]);
     };
 
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        setSelectedFile(file);
+        const fileType = file.type;
+
+        if (fileType === "application/pdf"){
+            const reader = new FileReader();
+            reader.onload = async function () {
+                const typedArray = new Uint8Array(reader.result);
+                const pdf = await pdfjsLib.getDocument(typedArray).promise;
+                let text = '';
+                for (let i =1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    const pageText = content.items.map(item => item.str).join(' ');
+                    text += pageText + '\n';
+                }
+                setResumeText(text);
+            };
+            reader.readAsArrayBuffer(file);
+
+        } else if (fileType === "text/plain") {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                setResumeText(e.target.result);
+            };
+            reader.readAsText(file);
+        } else if (
+            fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+            file.name.endsWith(".docx")
+        ) {
+            const reader = new FileReader();
+            reader.onload = async function(e){
+                const arrayBuffer = e.target.result;
+                try {
+                    const result = await mammoth.extractRawText({arrayBuffer});
+                    setResumeText(result.value);
+                } catch (error) {
+                    console.error("Error reading DOCX file:", error);
+                    alert("Could not extract text from the DOCX file.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            alert("Unsupported file type. Please upload PDF, Word (.docx) or plain text (.txt).");
+        }
+    };
+
+
     const generateQuestion = async () => {
         setLoading(true);
         setError('');
@@ -53,9 +112,10 @@ export default function InterviewCoach(){
         setCurrentUserAnswer('');
         setCurrentAIResponse('');
         setConversationHistory([]);
+        setSessionStarted(true);
 
-        if (!jobRole.trim()) {
-            setError("Please enter a job role.");
+        if (!jobRole.trim() && !resumeText) {
+            setError("Please enter a job role or a resume.");
             setLoading(false);
             return;
         }
@@ -65,22 +125,27 @@ export default function InterviewCoach(){
             setLoading(false);
             return;
         }
+        
 
         const newConversationId = `interview-${Date.now()}-${Math.random().toString(36).substring(2,9)}`;
         setCurrentConversationId(newConversationId);
         setConversationHistory([]);
 
+
         try {
             console.log("Calling Gemini API to generate question...")
-            // const userPrompt = `Generate one behavioural interview question for a jobseeker applying to be a ${jobRole}.`;
-            // const userPrompt = `Please generate a single behavioural interview question suitable for a job candidate applying to be a ${jobRole}. Format your output as plain text, no preamble or explanation.`;
-
-            const userPrompt = `You are an AI interview coach for a ${jobRole}. Please generate one initial behavioral interview question for this role. Format it as a clear question, no preamble or explanation.`;
-
             const response = await axios.post("/api/gemini", { 
                 messages: [],
-                latestUserMessage: {role: "user", parts: [{text: userPrompt}]},
-                latestRawUserMessage: {role: "user", parts: [{text: jobRole }]},
+                latestUserMessage: {
+                    role: "user", 
+                    parts: [{
+                        text: mode === 'resume' && resumeText
+                            ? `You are AI, an AI interview coach. Based on this resume:\n\n${resumeText}\n\nPlease generate one behavioural interview question. Format it as a clear question, no preamble or explanation.`
+                            : `You are an AI interview coach for a ${jobRole}. Please generate one behavioral interview question for this role. Format it as a clear question, no preamble or explanation.`
+                    }]},
+                latestRawUserMessage: {
+                    role: "user", 
+                    parts: [{text: mode && resumeText ? resumeText : jobRole }]},
                 type: "initial_question_generation",
                 jobRole: jobRole,
                 userId: userId,
@@ -96,24 +161,17 @@ export default function InterviewCoach(){
             } else {
                 console.error("No result in question response:", data);
                 setError("Sorry, I couldn't generate an initial question right now. Please try again.");
-                // setQuestion("Sorry, I couldn't generate a question right now.");
             }
 
         } catch (error) {
             console.error("Error calling Gemini API for initial question:", error.response?.data || error.message);
             setError(error.response?.data?.error || "An error occurred while generating the initial question.");
-            // setQuestion("Sorry, I couldn't generate a question right now.");
         } finally {
             setLoading(false);
         }
     };
 
     const handleUserMessage = async (messageText, messageType) => {
-        // setLoading(true);
-        // const fakeFeedback = `Great enthusiasm! Try to back it up with a personal experience.`;
-        // setFeedback(fakeFeedback);
-        // setLoading(false);
-
         if (!userId || !currentConversationId) {
             setError("Please log in and start an interview session first.");
             console.warn("Blocked message send: missing userId or conversationId", { userId, currentConversationId });
@@ -151,13 +209,10 @@ export default function InterviewCoach(){
             let userPrompt = messageText;
 
             if (messageType === "answer_submission"){
-                userPrompt = `My answer to the question "${initialQuestion}" is: "${messageText}". Provide concise, constructive feedback on this answer for a ${jobRole} role, and if appropriate, ask a follow-up question.`;
+                userPrompt = `My answer to the question "${initialQuestion}" is: "${messageText}". Provide concise, constructive feedback on this answer for a ${jobRole} role, and if appropriate, ask a follow-up question. Can you please make it more conversational, like a good friend explaining something to another friend`;
             } else if (messageType === "follow_up_user_question"){
-                userPrompt = `My follow-up question or comment is: "${messageText}". Please respond in the context of the interview.`;
+                userPrompt = `My follow-up question or comment is: "${messageText}". Please respond in the context of the interview. Can you please make it more conversational, like a good friend explaining something to another friend`;
             }
-
-            const messageforGeminiHistory = {role: 'user', parts: [{text: userPrompt}]};
-            const messageForFirestoreHistory = {role: 'user', parts: [{text: messageText}]};
 
             const response = await axios.post("/api/gemini", {
                 messages: [...conversationHistory, newUserMessage],
@@ -167,6 +222,7 @@ export default function InterviewCoach(){
                 jobRole: jobRole,
                 userId: userId,
                 conversationId: currentConversationId,
+                resumeText: resumeText,
 
             });
 
@@ -193,26 +249,81 @@ export default function InterviewCoach(){
     return (
         <div>
             <h2>AI-Powered Interview Coach</h2>
-            {/* <p>Logged In: (User ID: {userId})</p> */}
-
-            <input 
-                type="text"
-                placeholder="Enter a job role (e.g. Software Engineer or Lawyer)"
-                value={jobRole}
-                onChange={(e) => setJobRole(e.target.value)}   
-                disabled={loading}
-            />
-
-            <button 
-                onClick={generateQuestion}
-                disabled={loading || !jobRole.trim()}    
-            >
-                {loading && !initialQuestion ? 'Generating Question...' : 'Start New Interview'}
-            </button>
-
-            {error && (
-                <p>Error: {error}</p>
+            {!mode && (
+                <div>
+                    <p>Hey there! I'm your friendly AI interview buddy. Want to practice with your resume or a job role?</p>
+                    <button onClick={() => setMode("resume")}>Upload Resume</button>
+                    <button onClick={() => setMode("jobrole")}>Type Job Role</button>
+                </div>
             )}
+            
+            {!sessionStarted &&
+                (mode === 'resume' && !'greeting' && (
+                <div>
+                    <label>
+                    Upload your resume:
+                    <input 
+                        type="file"
+                        accept=".pdf,.docx,.txt"
+                        onChange={handleFileUpload}
+                        disabled={loading}
+                    />
+                    </label>
+
+                    <button 
+                        onClick={() => setGreeting(true)}
+                        disabled={loading || !resumeText.trim()}    
+                    >
+                        Continue
+                    </button>
+                </div>
+                ))
+            }
+
+            {!sessionStarted &&
+                (mode === 'jobrole' && !greeting && (
+                <div>
+                    <input 
+                    type="text"
+                    placeholder="Enter a job role (e.g. Software Engineer)"
+                    value={jobRole}
+                    onChange={(e) => setJobRole(e.target.value)}   
+                    disabled={loading}
+                />
+
+                    <button 
+                        onClick={() => setGreeting(true)}
+                        disabled={!jobRole.trim()}    
+                    >
+                        Contunue
+                    </button>
+
+                </div>
+                ))
+            }
+
+            {error && alert(`Error: ${error}`)}
+
+
+            {greeting && (resumeText || jobRole) && !initialQuestion && (
+                <div>
+                    <p>Awesome! Thanks for sharing that.</p>
+                    <p>Let's dive into a quick mode interview. I'll ask you a question based on your {mode==="resume" ? "resume" : "job role"}.</p>
+                    <p>Just be yourself - no pressure. Ready?</p>
+
+                    <button onClick={() => {
+                        setGreeting(false);
+                        generateQuestion();
+                    }}>
+                        Let's get started!
+                    </button>
+                </div>
+            )}
+
+            {initialQuestion && !loading && (
+                <div><strong>AI: </strong>{initialQuestion}</div>
+            )}
+
 
             {conversationHistory.length > 0 && (
                 <div>
@@ -224,28 +335,29 @@ export default function InterviewCoach(){
                 </div>
             )}
 
-
-
             {(initialQuestion || conversationHistory.length > 0) && !loading && (
                 <div>
-                    <label htmlFor="messageInput">Your Response:</label>
+                    <label>Your Response:</label>
                     <textarea 
                         rows={6}
                         cols={12}
                         value={currentUserAnswer} 
                         onChange={(e) => setCurrentUserAnswer(e.target.value)}
                         placeholder={
-                            initialQuestion && !conversationHistory.some(m => m.role === 'user' && m.parts[0].text.includes(initialQuestion))
-                                ? "Type your answer to the initial question here..."
-                                : "Ask a follow-up, provide more details, or continue the conversation..."
+                            initialQuestion 
+                            && !conversationHistory.some(m => m.role === 'user' && m.parts[0].text.includes(initialQuestion))
+                                ? "Type your answer to the question here..."
+                                : "Ask a follow-up or continue the conversation..."
                         }
                         disabled={loading}
                     />
 
                     <button 
-                        onClick={() => handleUserMessage(
+                        onClick={() => 
+                            handleUserMessage(
                             currentUserAnswer,
-                            initialQuestion && !conversationHistory.some(m => m.role === 'user' && m.parts[0].text.includes(initialQuestion))
+                            initialQuestion && 
+                            !conversationHistory.some(m => m.role === 'user' && m.parts[0].text.includes(initialQuestion))
                                 ? "answer_submission"
                                 : "follow-up_user_question"
                         )} 
@@ -255,11 +367,12 @@ export default function InterviewCoach(){
 
                 </div>
             )}
-
-            {error && (
-                <p>Error: {error}</p>
-            )}
         </div>
     )
 }
 
+
+function randomNumber(){
+    Math.random(2, 30)
+
+}

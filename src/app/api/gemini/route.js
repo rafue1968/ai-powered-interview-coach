@@ -30,14 +30,14 @@ export async function POST(request) {
 
 
     try {
-        const { messages, latestUserMessage, latestRawUserMessage, type, jobRole, userId, conversationId} = await request.json();
+        const { messages, latestUserMessage, latestRawUserMessage, type, jobRole, userId, conversationId, resumeText} = await request.json();
 
-        console.log("Incoming request body:", {
-            latestUserMessage,
-            latestRawUserMessage,
-            userId,
-            conversationId,
-        })
+        // console.log("Incoming request body:", {
+        //     latestUserMessage,
+        //     latestRawUserMessage,
+        //     userId,
+        //     conversationId,
+        // })
 
         if (!latestUserMessage || !latestRawUserMessage || !userId || !conversationId) {
             return NextResponse.json(
@@ -48,8 +48,15 @@ export async function POST(request) {
 
         console.log(`Received ${type || 'unknown'} prompt:`, latestUserMessage.parts[0].text);
 
+        if (resumeText && typeof resumeText === 'string' && resumeText.trim().length > 0) {
+            messages.unshift({
+                role: 'user',
+                parts: [{ text: `The user has uploaded the following resume content. Use it to tailor your questions:\n\n${resumeText}` }],
+            })
+        }
+
+
         if (!Array.isArray(messages)){
-            // console.error("No text content in Gemini response:", JSON.stringify(result, null, 2));
             return NextResponse.json(
                 { error: "messages must be an array." },
                 { status: 400 }
@@ -87,8 +94,6 @@ export async function POST(request) {
         
         const geminiTextReponse = await result?.response?.text?.();
 
-        console.log("Chat session object: ", chat);
-        console.log("What Gemini said: " + geminiTextReponse);
 
         if (!geminiTextReponse) {
             console.error("No text content in Gemini response:", JSON.stringify(result, null, 2));
@@ -112,9 +117,11 @@ export async function POST(request) {
             history: updatedHistory,
         }, {merge: true});
 
+
         console.log("Conversation history updated in Firebase.");
 
         return NextResponse.json({ question: geminiTextReponse }, {status: 200})
+
 
     } catch (error) {
         console.error("Gemini/Firebase Error:", {
@@ -128,4 +135,9 @@ export async function POST(request) {
             { status: 500 },
         );
     }
+}
+
+
+async function humanizedGeminiTextResponse(aiText){
+    const humanizedUserPrompt = `Hey, given the text, can you please make it more conversational, like a good friend explaining something to another friend: ${aiText}`
 }

@@ -14,7 +14,10 @@
     "axios": "^1.10.0",
     "firebase": "^11.10.0",
     "firebase-admin": "^13.4.0",
+    "mammoth": "^1.9.1",
     "next": "15.3.3",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^5.4.54",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-speech-recognition": "^4.0.1"
