@@ -4,6 +4,7 @@ import Loading from "../components/Loading";
 import { auth } from "../lib/firebaseClient.js";
 import * as pdfjsLib from "pdfjs-dist";
 import mammoth from "mammoth";
+import StartInterviewInput from "../components/StartInterviewInput";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
@@ -27,82 +28,16 @@ export default function InterviewCoach(){
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            if(user) {
-                setUserId(user.uid);
-                console.log("Firebase Auth: User is logged in! UID:", user.uid);
-            } else {
-                setUserId(null);
-                console.log("Firebase Auth: No user is logged in.");
-                setConversationHistory([]);
-                setCurrentConversationId(null);
-                setInitialQuestion('');
-                setCurrentUserAnswer('')
-                setCurrentAIResponse('')
-                setError('');
-            }
-        });
-        return () => unsubscribe();
-    }, []);
-
-    useEffect(() => {
         messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
     }, [conversationHistory, currentAIResponse, loading]);
 
     const addMessageToHistory = (role, text) => {
-        setConversationHistory(prevHistory => [
+        setConversationHistory((prevHistory) => [
             ...prevHistory,
             { role, parts: [{text}] }
         ]);
     };
 
-    const handleFileUpload = async (e) => {
-        const file = e.target.files[0];
-        setSelectedFile(file);
-        const fileType = file.type;
-
-        if (fileType === "application/pdf"){
-            const reader = new FileReader();
-            reader.onload = async function () {
-                const typedArray = new Uint8Array(reader.result);
-                const pdf = await pdfjsLib.getDocument(typedArray).promise;
-                let text = '';
-                for (let i =1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const content = await page.getTextContent();
-                    const pageText = content.items.map(item => item.str).join(' ');
-                    text += pageText + '\n';
-                }
-                setResumeText(text);
-            };
-            reader.readAsArrayBuffer(file);
-
-        } else if (fileType === "text/plain") {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                setResumeText(e.target.result);
-            };
-            reader.readAsText(file);
-        } else if (
-            fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-            file.name.endsWith(".docx")
-        ) {
-            const reader = new FileReader();
-            reader.onload = async function(e){
-                const arrayBuffer = e.target.result;
-                try {
-                    const result = await mammoth.extractRawText({arrayBuffer});
-                    setResumeText(result.value);
-                } catch (error) {
-                    console.error("Error reading DOCX file:", error);
-                    alert("Could not extract text from the DOCX file.");
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        } else {
-            alert("Unsupported file type. Please upload PDF, Word (.docx) or plain text (.txt).");
-        }
-    };
 
 
     const generateQuestion = async () => {
@@ -127,10 +62,15 @@ export default function InterviewCoach(){
         }
         
 
+        const greetingMessage = `Hey there! I'M YOUR AI Interview Coach. Let's get you ready for that ${jobRole || 'role'} interview. I'll start by asking a mock interview question - answer naturally and I'll help you refine it. Ready?`;
+        addMessageToHistory('model', greetingMessage);
+
         const newConversationId = `interview-${Date.now()}-${Math.random().toString(36).substring(2,9)}`;
         setCurrentConversationId(newConversationId);
-        setConversationHistory([]);
-
+        // setConversationHistory([]);
+        
+        setGreeting(true);
+        
 
         try {
             console.log("Calling Gemini API to generate question...")
@@ -139,9 +79,10 @@ export default function InterviewCoach(){
                 latestUserMessage: {
                     role: "user", 
                     parts: [{
-                        text: mode === 'resume' && resumeText
+                        text: 
+                         mode === "resume" && resumeText
                             ? `You are AI, an AI interview coach. Based on this resume:\n\n${resumeText}\n\nPlease generate one behavioural interview question. Format it as a clear question, no preamble or explanation.`
-                            : `You are an AI interview coach for a ${jobRole}. Please generate one behavioral interview question for this role. Format it as a clear question, no preamble or explanation.`
+                            : `You are an AI interview coach for a ${jobRole}. Please generate one behavioral interview question for this role. Format it as a clear question, no preamble or explanation.`,
                     }]},
                 latestRawUserMessage: {
                     role: "user", 
@@ -159,7 +100,7 @@ export default function InterviewCoach(){
                 setInitialQuestion(data.question.trim());
                 addMessageToHistory('model', data.question.trim());
             } else {
-                console.error("No result in question response:", data);
+                // console.error("No result in question response:", data);
                 setError("Sorry, I couldn't generate an initial question right now. Please try again.");
             }
 
@@ -184,11 +125,11 @@ export default function InterviewCoach(){
         setError('');
         setCurrentAIResponse('');
 
-        if (!userId || !currentConversationId) {
-            setError("Please log in and start an interview session first.");
-            setLoading(false);
-            return;
-        }
+        // if (!userId || !currentConversationId) {
+        //     setError("Please log in and start an interview session first.");
+        //     setLoading(false);
+        //     return;
+        // }
 
         if (!messageText.trim()){
             setError("Please provide input.");
@@ -199,24 +140,18 @@ export default function InterviewCoach(){
         const newUserMessage = { role: 'user', parts: [{ text: messageText }]};
         addMessageToHistory('user', messageText);
 
-        // let promptForGemini = messageText;
+        let userPrompt = messageText;
+
+        if (messageType === "answer_submission"){
+            userPrompt = `Act like a friendly and insightful interview coach. My answer to the question "${initialQuestion}" is: "${messageText}". Please provide constructive, warm feedback using the STAR method as a reference.\n\n✅ Let me know if the response covered:\n- The situation/context\n- The task\n- The actions taken\n- The result\n\nGive encouraging advice on what worked, what could improve, and ask a natural follow-up question to help me refine it. Keep it conversational.`;
+        } else if (messageType === "follow_up_user_question"){
+            userPrompt = `My follow-up question is: "${messageText}". Please respond in the context of the interview. Keep it friendly and helpful.`;
+        }
 
         try {
-            console.log("Calling API to submit answer for feedback...");
-            
-            // const feedbackPrompt = `You are an AI interview coach. A candidate is applying for the role of ${jobRole}. They were asked: "${question}" and they answered: "${answer}". Provide concise, constructive feedback to help them improve. Focus on clarity, relevance, structure (e.g., STAR method if applicable), and confidence.`;
-
-            let userPrompt = messageText;
-
-            if (messageType === "answer_submission"){
-                userPrompt = `My answer to the question "${initialQuestion}" is: "${messageText}". Provide concise, constructive feedback on this answer for a ${jobRole} role, and if appropriate, ask a follow-up question. Can you please make it more conversational, like a good friend explaining something to another friend`;
-            } else if (messageType === "follow_up_user_question"){
-                userPrompt = `My follow-up question or comment is: "${messageText}". Please respond in the context of the interview. Can you please make it more conversational, like a good friend explaining something to another friend`;
-            }
-
             const response = await axios.post("/api/gemini", {
                 messages: [...conversationHistory, newUserMessage],
-                latestUserMessage: { role: 'user', parts: [{text: userPrompt}] }, //newUserMessage,
+                latestUserMessage: { role: 'user', parts: [{text: userPrompt}] },
                 latestRawUserMessage: {role: 'user', parts: [{text: messageText}]},
                 type: messageType,
                 jobRole: jobRole,
@@ -229,7 +164,6 @@ export default function InterviewCoach(){
             const data = response.data;
 
             if (data?.question) {
-                console.log("Gemini Feedback Response:", data.question);
                 setCurrentAIResponse(data.question.trim());
                 addMessageToHistory('model', data.question.trim());
                 setCurrentUserAnswer('');
@@ -240,23 +174,31 @@ export default function InterviewCoach(){
         } catch (error) {
             console.error("Error calling API: ", error.response?.data || error.message);
             setError(error.response?.data?.error || "An error occurred while processing your request.");
-            // setFeedback("Sorry, there was an error generating feedback");
         } finally {
             setLoading(false);
         }
     };
 
+
+    if (!mode) return <StartInterviewInput setMode={setMode} />
+
+    if (mode === "resume" && !resumeText) {
+        return <UploadResume setResumeText={setResumeText} onComplete={() => setStartInterview(true)} />;
+    }
+
+    if (mode === "jobrole" && !jobRole) {
+        return <JobRoleInput setJobRole={setJobRole} onComplete={() => setStartInterview(true)} />;
+    }
+
+    if (startInterview) {
+        return <InterviewChat jobRole={jobRole} resumeText={resumeText} />;
+    }
+
+    return null;
+
+
     return (
-        <div>
-            <h2>AI-Powered Interview Coach</h2>
-            {!mode && (
-                <div>
-                    <p>Hey there! I'm your friendly AI interview buddy. Want to practice with your resume or a job role?</p>
-                    <button onClick={() => setMode("resume")}>Upload Resume</button>
-                    <button onClick={() => setMode("jobrole")}>Type Job Role</button>
-                </div>
-            )}
-            
+        <div>            
             {!sessionStarted &&
                 (mode === 'resume' && !'greeting' && (
                 <div>
@@ -320,9 +262,9 @@ export default function InterviewCoach(){
                 </div>
             )}
 
-            {initialQuestion && !loading && (
+            {/* {initialQuestion && !loading && (
                 <div><strong>AI: </strong>{initialQuestion}</div>
-            )}
+            )} */}
 
 
             {conversationHistory.length > 0 && (
@@ -340,7 +282,7 @@ export default function InterviewCoach(){
                     <label>Your Response:</label>
                     <textarea 
                         rows={6}
-                        cols={12}
+                        cols={120}
                         value={currentUserAnswer} 
                         onChange={(e) => setCurrentUserAnswer(e.target.value)}
                         placeholder={
@@ -369,10 +311,4 @@ export default function InterviewCoach(){
             )}
         </div>
     )
-}
-
-
-function randomNumber(){
-    Math.random(2, 30)
-
 }

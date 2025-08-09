@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 // import { firestore } from "../../../../firebaseClient";
 import { db } from "../../../lib/firebaseAdmin";
+import constructGeminiPrompt from "../../../utils/constructGeminiPrompt"
 
 const apiKey = process.env.GEMINI_API_KEY;
 
@@ -30,97 +31,51 @@ export async function POST(request) {
 
 
     try {
-        const { messages, latestUserMessage, latestRawUserMessage, type, jobRole, userId, conversationId, resumeText} = await request.json();
+        const { message, history, jobRole, resumeText} = await request.json();
 
-        // console.log("Incoming request body:", {
-        //     latestUserMessage,
-        //     latestRawUserMessage,
-        //     userId,
-        //     conversationId,
-        // })
+        // if (!latestUserMessage || !latestRawUserMessage || !userId || !conversationId) {
+        // if (!message || !history) {
+        //     return NextResponse.json(
+        //         {error: "Missing required parameters: message or history."},
+        //         {status: 400}
+        //     );
+        // }
 
-        if (!latestUserMessage || !latestRawUserMessage || !userId || !conversationId) {
-            return NextResponse.json(
-                {error: "Missing required parameters: latestUserMessage, userId, or conversationalId."},
-                {status: 400}
-            );
-        }
+        // if (resumeText && typeof resumeText === 'string' && resumeText.trim().length > 0) {
+        //     message.unshift({
+        //         role: 'user',
+        //         parts: [{ text: `The user has uploaded the following resume content. Use it to tailor your questions:\n\n${resumeText}` }],
+        //     })
+        // }
 
-        console.log(`Received ${type || 'unknown'} prompt:`, latestUserMessage.parts[0].text);
+        // if (!Array.isArray(message)){
+        //     return NextResponse.json(
+        //         { error: "messages must be an array." },
+        //         { status: 400 }
+        //     );
+        // }
 
-        if (resumeText && typeof resumeText === 'string' && resumeText.trim().length > 0) {
-            messages.unshift({
-                role: 'user',
-                parts: [{ text: `The user has uploaded the following resume content. Use it to tailor your questions:\n\n${resumeText}` }],
-            })
-        }
+        console.log("Received from client:", { message, history, jobRole, resumeText });
 
+        const userText = typeof message === "string" ? message : message?.text;
 
-        if (!Array.isArray(messages)){
-            return NextResponse.json(
-                { error: "messages must be an array." },
-                { status: 400 }
-            );
-        }
+        const systemPrompt = constructGeminiPrompt(userText, jobRole, resumeText);
 
-        console.log(`Received ${type || 'chat'} prompt from user:`, latestUserMessage.parts[0].text);
-        console.log(`Conversation History Length:`, messages.length);
+        const combinedHistory = [...systemPrompt, ...history];
 
         const model = genAI.getGenerativeModel({model: "gemini-2.0-flash"});
 
-        let chatHistoryForGemini = [];
-
-        const conversationDocRef = db.collection('users').doc(userId).collection('conversations').doc(conversationId);
-        const conversationDoc = await conversationDocRef.get();
-
-        if (conversationDoc.exists) {
-            console.log("Loading existing conversation from Firebase.");
-            chatHistoryForGemini = conversationDoc.data().history || [];
-        } else {
-            console.log("Starting a new conversation in Firebase.");
-            chatHistoryForGemini = messages;
-        }
-
         const chat = model.startChat({
-            history: chatHistoryForGemini,
+            history: combinedHistory,
             generationConfig: {
-                maxOutputTokens: 500,
+                temperature: 0.7,
+                maxOutputTokens: 350,
             },
         });
+        const result = await chat.sendMessage(userText);
+        const responseText = result.response.text();       
 
-        console.log("Sending message to Gemini:", latestUserMessage.parts);
-        const result = await chat.sendMessage(latestUserMessage.parts); //model.generateContent(userPrompt);
-        
-        
-        const geminiTextReponse = await result?.response?.text?.();
-
-
-        if (!geminiTextReponse) {
-            console.error("No text content in Gemini response:", JSON.stringify(result, null, 2));
-            return NextResponse.json(
-                { error: "No text response generated from Gemini." },
-                { status: 500 }
-            );
-        }
-
-        console.log("Gemini response:", geminiTextReponse);
-        const updatedHistory = [
-            ...chatHistoryForGemini,
-            latestRawUserMessage,
-            {role: 'model', parts: [{text: geminiTextReponse}] }
-        ];
-
-        await conversationDocRef.set({
-            jobRole: jobRole,
-            userId: userId,
-            lastUpdated: new Date(),
-            history: updatedHistory,
-        }, {merge: true});
-
-
-        console.log("Conversation history updated in Firebase.");
-
-        return NextResponse.json({ question: geminiTextReponse }, {status: 200})
+        return NextResponse.json({ response: responseText }, {status: 200})
 
 
     } catch (error) {
@@ -131,7 +86,7 @@ export async function POST(request) {
         ...error
         });
         return NextResponse.json(
-            { error: error.message || "Internal server error" }, 
+            { error: error.message || "Gemini error" }, 
             { status: 500 },
         );
     }

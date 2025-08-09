@@ -22,13 +22,6 @@ export default function Page(){
           if (user) {
             const snap = await getDoc(doc(firestore, "users", user.uid));
             const role = snap.exists() ? snap.data().role : "user";
-  
-            if (role === "user") {
-              setAuthorized(true);
-            } else {
-              alert("Sorry. You cannot this page. You must login first.");
-              router.push("/");
-            }
           } else {
             router.push("/login");
           }
@@ -40,7 +33,6 @@ export default function Page(){
     }, []);
     
     if (loading) return <Loading />;
-    if (!authorized) return null;
 
     return (
         <div>
