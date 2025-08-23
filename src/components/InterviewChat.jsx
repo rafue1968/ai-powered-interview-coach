@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { firestore } from "../lib/firebaseClient";
+import { auth, firestore } from "../lib/firebaseClient";
 import {
   collection,
   addDoc,
@@ -9,19 +9,23 @@ import {
   orderBy,
   onSnapshot,
   serverTimestamp,
+  getDoc,
+  doc,
 } from "firebase/firestore";
 import MessageBubble from "./MessageBubble"
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
 
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-export default function InterviewChat({ user, jobRole, resumeText }) {
+export default function InterviewChat({ user="", jobRole, resumeText, sessionId="" }) {
+  const userId = auth.currentUser.uid;
+
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const chatRef = collection(firestore, "users", user, "interactions");
+
+  const firestoreInteractions = collection(firestore, "users", userId, "sessions", sessionId, "interactions");
   const bottomRef = useRef(null);
 
 
@@ -32,16 +36,20 @@ export default function InterviewChat({ user, jobRole, resumeText }) {
    }, [messages]);
 
 
+      //  const q = query(collection(firestore, "users", user, "sessions", session, "interactions"), orderBy("timestamp"));
   
   useEffect(() => {
-    const q = query(collection(firestore, "users", user, "interactions"), orderBy("timestamp"));
+    if (!user || !sessionId) return;
+    
+    const q = query(firestoreInteractions, orderBy("timestamp"));
+    
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}));
       setMessages(msgs);
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user, sessionId]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -52,7 +60,7 @@ export default function InterviewChat({ user, jobRole, resumeText }) {
       timestamp: serverTimestamp(),
     };
 
-    await addDoc(chatRef, userMessage);
+    await addDoc(firestoreInteractions, userMessage);
     setInput("");
     setLoading(true);
 
@@ -75,15 +83,25 @@ export default function InterviewChat({ user, jobRole, resumeText }) {
         const aiText = res.data?.response || "Hmm, I couldn't think of a helpful response. Can you try rephrasing?";
 
 
-      await addDoc(chatRef, {
+      await addDoc(firestoreInteractions, {
         text: aiText,
         sender: "ai",
         timestamp: serverTimestamp(),
       });
+
+      const voiceRes = await axios.post("/api/speak", {
+        aiText
+      })
+
+      const blob = await voiceRes.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.play();
+
     } catch (err) {
       console.error("Gemini error:", err);
-      await addDoc(chatRef, {
-        text: "Oops, something went wrong with the AI response.",
+      await addDoc(firestoreInteractions, {
+        text: "Oops, something went wrong. I am not able to respond right now. Please try again.",
         sender: "ai",
         timestamp: serverTimestamp(),
       });

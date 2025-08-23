@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export default function JobRoleInput({setJobRole, onComplete}){
     const handleSubmit = (e) => {
-        e.preventDefault();
+        // e.preventDefault();
         const input = e.target.elements.jobRole.value.trim();
         if (input){
             setJobRole(input);

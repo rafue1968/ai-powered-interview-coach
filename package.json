@@ -20,7 +20,8 @@
     "pdfjs-dist": "^5.4.54",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-speech-recognition": "^4.0.1"
+    "react-speech-recognition": "^4.0.1",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

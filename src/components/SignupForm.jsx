@@ -54,7 +54,8 @@ export default function SignupForm(){
                     onChange={(e) => setPassword(e.target.value)}
                     value={password}
                     required
-                    minLength={6}
+                    minLength={8}
+                    maxLength={64}
                 />
 
                 <button type="submit">Register</button>

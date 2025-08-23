@@ -7,7 +7,8 @@
  * @returns {Array} - Gemini-compatible history array
  */
 
-export default function constructGeminiPrompt(userMessage, jobRole, resumeText) {
+
+export default function constructGeminiPrompt(userMessage, jobRole, resumeText, sentimentLabel) {
     let context = "The user is preparing for a behavioral job interview.";
 
     if (jobRole) {
@@ -15,7 +16,7 @@ export default function constructGeminiPrompt(userMessage, jobRole, resumeText) 
     }
 
     if (resumeText) {
-        context += ` Here is their resume summary:\n${resumeText.slice(0, 1000)}\n`; // Limit for safety
+        context += ` Here is their resume summary:\n${resumeText.slice(0, 1000)}\n`;
     }
 
     return [
@@ -30,10 +31,12 @@ export default function constructGeminiPrompt(userMessage, jobRole, resumeText) 
 
                             "${userMessage}"
 
+                            And the the user's emotional tone is: "${sentimentLabel}"
+                            
                             Your role is to guide them like a supportive coach or a smart, encouraging friend.
                             Be warm, conversational, and human-like — no robotic tone.
 
-                            Help them prepare for behavioral interviews. Depending on their message, choose your tone:
+                            Help them prepare for behavioral interviews. Depending on their message and sentiment, choose your tone:
 
                             - 🎯 Motivator — if they seem anxious, overwhelmed, or underconfident. Lift them up.
                             - 🧠 Strategist — if they want techniques, structure, or feedback. Offer helpful insight.
@@ -49,8 +52,8 @@ export default function constructGeminiPrompt(userMessage, jobRole, resumeText) 
 
                             Ask thoughtful follow-up questions to keep the momentum going.
                             Avoid sounding repetitive, generic, or overly formal.
-                            And ensure your responses are within 300 words.
-                                    `.trim(),
+                            And ensure your responses are within 100 words.
+                            `.trim(),
                         },
                 ],
             },
