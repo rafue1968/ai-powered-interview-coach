@@ -15,6 +15,7 @@ import {
 import MessageBubble from "./MessageBubble"
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
+import Dictaphone from "../components/Dictaphone";
 
 
 
@@ -24,6 +25,7 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [transcript, setTranscript] = useState("");
 
   const firestoreInteractions = collection(firestore, "users", userId, "sessions", sessionId, "interactions");
   const bottomRef = useRef(null);
@@ -89,14 +91,14 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
         timestamp: serverTimestamp(),
       });
 
-      const voiceRes = await axios.post("/api/speak", {
-        aiText
-      })
+      // const voiceRes = await axios.post("/api/speak", {
+      //   aiText
+      // })
 
-      const blob = await voiceRes.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audio.play();
+      // const blob = await voiceRes.blob();
+      // const url = URL.createObjectURL(blob);
+      // const audio = new Audio(url);
+      // audio.play();
 
     } catch (err) {
       console.error("Gemini error:", err);
@@ -109,6 +111,10 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
 
     setLoading(false);
   };
+
+  const dictaphoneComplete = (transcript) => {
+    setInput(input + transcript);
+  }
 
   return (
     <div className="chat-container" style={{ maxWidth: 600, margin: "auto" }}>
@@ -128,21 +134,28 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
                 <MessageBubble key={msg.id} message={msg} />
             ))}
         </div>
-        {loading && <p>Thinking...</p>}
+        {loading && <p style={{
+          color: "black"
+        }}>Thinking <span className="dots"></span></p>}
         <div ref={bottomRef} />
       </div>
 
       <div className="input-area" style={{ display: "flex", gap: "0.5rem" }}>
-        <input
-          type="text"
-          placeholder="Type your response..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          style={{ flex: 1, padding: "0.5rem" }}
+        <textarea 
+            type="text"
+            placeholder="Type your response..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            style={{ flex: 1, padding: "0.5rem" }}     
+            className="message-textarea"   
         />
+
         <button onClick={handleSend} disabled={loading}>
           Send
         </button>
+        <div style={{display: "flex", alignItems: "center"}}>
+            <Dictaphone setTranscript={setTranscript} dictaphoneComplete={dictaphoneComplete} />
+        </div>
       </div>
     </div>
   );

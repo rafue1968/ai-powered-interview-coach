@@ -7,7 +7,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import Loading from "../../components/Loading"
 import { auth, firestore } from "../../lib/firebaseClient";
 import { getDoc, doc } from "firebase/firestore";
-import LogoutButton from "../../components/LogoutButton";
+import ShowCurrentUserLogoutButton from "../../components/ShowCurrentUserLogoutButton";
 // import DeleteAccountButton from "../../components/DeleteAccountButton"
 
 
@@ -35,10 +35,10 @@ export default function Page(){
     if (loading) return <Loading />;
 
     return (
-        <div>
+        <div className="">
             <NavigationButton routeText="ai-interview-coach" buttonText="Start Interview Session" />
             <NavigationButton routeText="login" buttonText="View History" />
-            <LogoutButton />
+            {/* <ShowCurrentUserLogoutButton /> */}
             {/* <DeleteAccountButton /> */}
         </div>
     )

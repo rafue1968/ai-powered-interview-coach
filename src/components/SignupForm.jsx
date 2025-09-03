@@ -27,7 +27,7 @@ export default function SignupForm(){
             });
             
             alert(`You have registered as ${email} successfully!`);
-            router.push("/dashboard");
+            router.push("/ai-interview-coach");
         } catch (error) {
             setError(`Registration failed: ${error.message}`);
         }
@@ -36,7 +36,9 @@ export default function SignupForm(){
     return (
         <form onSubmit={handleRegister} className="card">
             <div style={{display: "flex", flexDirection: "column", gap: "0.5rem"}}>
-                <h2>Register as a New User</h2>
+                <h2 style={{
+                    fontSize: "20px"
+                }}><strong><center>Register as a New User</center></strong></h2>
 
                 {error && <p style={{color: "red"}}>{error}</p>}
 

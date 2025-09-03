@@ -55,7 +55,7 @@ export default function LoginForm() {
 
             console.log(role);
 
-            router.push("/dashboard");
+            router.push("/ai-interview-coach");
   
             // if (role === "admin") {
             // router.push("/admin");
@@ -112,7 +112,9 @@ export default function LoginForm() {
       // <div className="card">
         <form onSubmit={handleLogin} className="card" >
           <div style={{display: "flex", flexDirection: "column", gap: "0.5rem"}}>
-            <h2>Login</h2>
+            <h2 style={{
+              fontSize: "20px"
+            }}><strong><center>Login</center></strong></h2>
             {error && <p style={{ color: "red" }}>{error}</p>}
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password"  required />

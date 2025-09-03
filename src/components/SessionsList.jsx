@@ -1,37 +1,39 @@
 "use client";
 
-import SessionFormField from "./SessionFormField"
+import SessionFormField from "./SessionFormField";
 
-
-export default function SessionsList({sessions = [], createSession, selectSessionID}){
-    
-    if (sessions.length === 0){
-        return (
-            <div>
-                <p>No sessions recorded.</p>
-                <SessionFormField createSession={createSession} />
-            </div>
-        )
-    }
-    
-    
+export default function SessionsList({ sessions = [], createSession, selectSessionID }) {
+  if (sessions.length === 0) {
     return (
-        <>
-            <div>
-                <h3>Do you wish to start a new session?</h3>
-                <SessionFormField createSession={createSession} />
+      <div className="sessions-container">
+        <p className="sessions-empty">No sessions recorded.</p>
+        <SessionFormField createSession={createSession} />
+      </div>
+    );
+  }
 
-                <h3>Or choose the sessions you have already done below?</h3>
-                <ul>
-                    {sessions.map((session)=> (
-                        <li key={session.id}>
-                            <button style={{marginBottom: "20px"}} onClick={() => selectSessionID(session.id, session.interviewType)}>
-                                {session.name}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </>
-    )
+  return (
+    <div className="sessions-container">
+      <div className="sessions-section">
+        <h3 className="sessions-heading">Do you wish to start a new session?</h3>
+        <SessionFormField createSession={createSession} />
+      </div>
+
+      <div className="sessions-section">
+        <h3 className="sessions-heading">Or choose from your previous sessions:</h3>
+        <ul className="sessions-list">
+          {sessions.map((session) => (
+            <li key={session.id} className="sessions-item">
+              <button
+                className="session-button"
+                onClick={() => selectSessionID(session.id, session.interviewType)}
+              >
+                {session.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
 }

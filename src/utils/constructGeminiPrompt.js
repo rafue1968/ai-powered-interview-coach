@@ -31,7 +31,7 @@ export default function constructGeminiPrompt(userMessage, jobRole, resumeText, 
 
                             "${userMessage}"
 
-                            And the the user's emotional tone is: "${sentimentLabel}"
+                            And the the user's emotional state in its responsive is: "${sentimentLabel}"
                             
                             Your role is to guide them like a supportive coach or a smart, encouraging friend.
                             Be warm, conversational, and human-like — no robotic tone.
@@ -52,7 +52,7 @@ export default function constructGeminiPrompt(userMessage, jobRole, resumeText, 
 
                             Ask thoughtful follow-up questions to keep the momentum going.
                             Avoid sounding repetitive, generic, or overly formal.
-                            And ensure your responses are within 100 words.
+                            And ensure your responses are within 100 words and do not use Emojis.
                             `.trim(),
                         },
                 ],

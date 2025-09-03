@@ -15,23 +15,29 @@ export default function SessionFormField({createSession}){
     }
     
     return (
-        <form onSubmit={handleSubmit}>
-            <label>Session Name:</label>
-            <input 
-                type="text" 
-                value={sessionName}
-                onChange={(e) => setSessionName(e.target.value)}
-                placeholder="Enter session name"
-             />
+        <form className="session-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+                <label className="form-label">Interview Session Name:</label>
+                <input 
+                    type="text" 
+                    value={sessionName}
+                    onChange={(e) => setSessionName(e.target.value)}
+                    placeholder="Enter Interview Session Name"
+                    className="form-input"
+                    required
+                />
+            </div>
 
-             <label>Please select input type:</label>
-            <select value={mode} onChange={(e) => setMode(e.target.value)}>
-                <option value="">Select Mode</option>
-                <option value="jobrole">Type Job Role Manually</option>
-                <option value="resume">Upload Resume</option>
-            </select>
+            <div className="form-group">
+                <label className="form-label">Please select input type you would like to start with:</label>
+                <select value={mode} onChange={(e) => setMode(e.target.value)} className="form-select" required>
+                    <option value="">Select Interview Mode</option>
+                    <option value="jobrole">Type Job Role Manually</option>
+                    <option value="resume">Upload Resume</option>
+                </select>
+            </div>
 
-            <button type="submit">Create New Session</button>
+            <button type="submit" className="form-button">Create New Interview Session</button>
         </form>
     )
 }

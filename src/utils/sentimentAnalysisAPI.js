@@ -6,7 +6,9 @@ export async function analyzeSentiment(text){
             text: text
         });
 
-        return response.data
+        const sentiment = response.data || 0;
+
+        return sentiment;
     } catch (err){
         console.error("Error calling sentiment API:", err);
         return null;

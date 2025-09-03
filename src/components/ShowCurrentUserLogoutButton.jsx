@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 export default function LogoutButton(){
     const router = useRouter();
+    const currentuser = auth.currentUser;
 
     const handleLogout = async () => {
         try {
@@ -18,6 +19,13 @@ export default function LogoutButton(){
 
 
     return (
-        <button className="primary" onClick={handleLogout}>Logout</button>
+        <div className="showCurrentUserLogout">
+            <strong>{currentuser.email}</strong>
+            <button onClick={handleLogout} className="showCurrentUserLogoutButton">
+                Logout
+            </button>
+        </div>
+
+        
     )
 }

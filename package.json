@@ -11,17 +11,21 @@
   "dependencies": {
     "@google/genai": "^1.11.0",
     "@google/generative-ai": "^0.24.1",
+    "assemblyai": "^4.15.0",
     "axios": "^1.10.0",
     "firebase": "^11.10.0",
     "firebase-admin": "^13.4.0",
+    "formidable": "^3.5.4",
     "mammoth": "^1.9.1",
     "next": "15.3.3",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^5.4.54",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-media-recorder": "^1.7.2",
     "react-speech-recognition": "^4.0.1",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

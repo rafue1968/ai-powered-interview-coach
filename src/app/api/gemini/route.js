@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { db } from "../../../lib/firebaseAdmin";
 import constructGeminiPrompt from "../../../utils/constructGeminiPrompt"
 import { analyzeSentiment } from "../../../utils/sentimentAnalysisAPI"
+import logSessionData from "../../../utils/logSessionData";
 
 const apiKey = process.env.GEMINI_API_KEY;
 
@@ -55,7 +56,13 @@ export async function POST(request) {
             },
         });
         const result = await chat.sendMessage(userText);
-        const responseText = result.response.text();       
+        const responseText = result.response.text();      
+        
+        let mode = "Strategist";
+        if (sentimentLabel === "negative") mode = "Motivator";
+        if (sentimentLabel === "positive") mode = "Interviewer"
+
+        await logSessionData("demoUser", jobRole, resumeText, userText, responseText, sentimentLabel, mode);
 
         return NextResponse.json({ response: responseText }, {status: 200})
 

@@ -67,32 +67,39 @@ export default function UploadResume({setResumeText, onComplete}){
 
 
     return (
-        <div>
-            <h2>Upload your resume</h2>
-            <form onSubmit={handleFileUpload} >
-                <input
-                    type="file"
-                    accept=".pdf,.docx,.txt, .doc"
-                    ref={fileInputRef}
-                    onChange={(e) => setFile(e.target.files[0])}
-                    required
-                />
-                <button type="submit" disabled={uploading}>
-                    {uploading ? "Uploading" : "Upload and Summarise"}
-                </button>
-            </form>
+        <div className="center-screen">
+            <div className="upload-container">
+                <h2 className="upload-title">Upload your resume</h2>
+                <form onSubmit={handleFileUpload} className="upload-form" >
+                    <input
+                        type="file"
+                        accept=".pdf,.docx,.txt, .doc"
+                        ref={fileInputRef}
+                        onChange={(e) => setFile(e.target.files[0])}
+                        required
+                        className="upload-input"
+                        style={{
+                            color: "gray",
+                        }}
+                    />
+                    <button type="submit" disabled={uploading} className="upload-button">
+                        {uploading ? "Uploading" : "Upload and Summarise"}
+                    </button>
+                </form>
 
-            {
-                summary && (
-                    <div>
-                        <h3>Summary:</h3>
-                        <pre>{summary}</pre>
-                    </div>
-                )
-            }
+                {uploading && <p className="upload-status">Uploading and extracting text...</p>}
+                {error && <p className="upload-error">{error}</p>}
 
-            {uploading && <p>Uploading and extracting text...</p>}
-            {error && <p>Upload Resume Error: ${error}`</p>}
+                {
+                    summary && (
+                        <div className="upload-summary">
+                            <h3>Resume Summary:</h3>
+                            <pre>{summary}</pre>
+                        </div>
+                    )
+                }
+                
+            </div>
         </div>
     )
 

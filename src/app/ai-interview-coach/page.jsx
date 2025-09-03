@@ -17,6 +17,7 @@ import JobRoleInput from "../../components/JobRoleInput";
 import UploadResume from "../../components/UploadResume"
 import { v4  as uuidv4 } from "uuid"
 import NavigationButton from "../../components/NavigationButton";
+import ShowCurrentUserLogoutButton from "../../components/ShowCurrentUserLogoutButton"
 
 
 export default function Page(){
