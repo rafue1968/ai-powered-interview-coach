@@ -606,11 +606,12 @@ a[href]{
 
 
 .showCurrentUserLogout{
-    background-color: rgba(255, 255, 255, 0.659);
+    opacity: 30%;
+    /* background-color: rgba(255, 255, 255, 0.34); */
     color: black;
-    width: 250px;
-    height: 60px;
-    padding: 5px 20px;
+    width: 280px;
+    height: fit-content;
+    /* padding: 5px 1px; */
     border-radius: 30px;
 
     display: flex;
@@ -621,21 +622,33 @@ a[href]{
     bottom: 20px;
     right: 20px;
     z-index: 1000;
-    transition: background-color ease-in 0.3s;
+    transition: opacity ease-in-out 0.3s, background-color ease-in-out 0.3s;
 }
 
 .showCurrentUserLogout:hover{
     background-color: white;
+    opacity: 100%;
 }
 
 
 .showCurrentUserLogoutButton{
     background-color: red;
     margin: 10px;
-    height: fit-content;
+    height: 30px;
     border-radius: 20px;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: center;
 }
 
 .showCurrentUserLogoutButton:hover{
     background-color: rgb(160, 0, 0);
+}
+
+
+.currentModeBox{
+  background-color: rgba(170, 79, 59, 0.41);
+  width: fit-content;
+  border-radius: 20px;
+  padding: 10px;
 }

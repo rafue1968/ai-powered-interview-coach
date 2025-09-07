@@ -1,13 +1,3 @@
-/**
- * Constructs a dynamic prompt for Gemini based on the user's message, job role, and resume.
- *
- * @param {string} userMessage - What the user just typed
- * @param {string} [jobRole] - Optional job role they're preparing for
- * @param {string} [resumeText] - Optional uploaded resume content
- * @returns {Array} - Gemini-compatible history array
- */
-
-
 export default function constructGeminiPrompt(userMessage, jobRole, resumeText, sentimentLabel) {
     let context = "The user is preparing for a behavioral job interview.";
 

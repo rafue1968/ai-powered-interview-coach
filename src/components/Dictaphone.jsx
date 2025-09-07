@@ -50,13 +50,11 @@ export default function Dictaphone({setTranscript, dictaphoneComplete}){
                     // SpeechRecognition.startListening({continuous: true})
                     startListening
                     }>
-                        {/* Start */}
                         <img style={{columnFill: "white"}} src="/play.svg" alt="starticon" />
             </button>
             
             <button 
                 onClick={
-                    // SpeechRecognition.stopListening
                     stopListening
                     }>
                         Stop

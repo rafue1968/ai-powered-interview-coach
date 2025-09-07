@@ -104,13 +104,6 @@ export default function Page(){
       setSelectedSessionID(sessionId);
     }
 
-
-
-    // useEffect(() => {
-    //   if (ready && !sessionId){
-    //     setSessionId(uuidv4());
-    //   }
-    // }, [ready])
     
     if (loading) return <Loading />;
 
@@ -129,7 +122,7 @@ export default function Page(){
     } else if (mode && selectedSessionID && ready){
       content = (
         <>
-          <h2>Interview Coach: {mode === "resume" ? "Resume": "Job Role"} Mode</h2>
+          <h2 className="currentModeBox">Interview Coach: {mode === "resume" ? "Resume": "Job Role"} Mode</h2>
           <InterviewChat user={user} sessionId={selectedSessionID} jobRole={jobRole} resumeText={resumeText}  />
         </>
       );
@@ -142,7 +135,6 @@ export default function Page(){
       <div>
         {content}
         <div style={{display: "flex", justifyContent:"end", marginTop: "90px"}}>
-          <NavigationButton routeText="dashboard" buttonText="Go Back to Dashboard"  />
         </div>
       </div>
     )
