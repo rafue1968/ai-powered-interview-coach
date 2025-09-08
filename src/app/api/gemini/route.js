@@ -39,12 +39,14 @@ export async function POST(request) {
 
         const userText = typeof message === "string" ? message : message?.text;
 
-        const sentimentResult = await analyzeSentiment(userText);
+        const sentimentResult = analyzeSentiment(userText);
         const sentimentLabel = sentimentResult.sentiment;
 
         const systemPrompt = constructGeminiPrompt(userText, jobRole, resumeText, sentimentLabel);
         
         const combinedHistory = [...systemPrompt, ...history];
+
+        console.log("Combined history >>>", JSON.stringify(combinedHistory, null, 2));
 
         const model = genAI.getGenerativeModel({model: "gemini-2.0-flash"});
 
@@ -52,12 +54,17 @@ export async function POST(request) {
             history: combinedHistory,
             generationConfig: {
                 temperature: 0.7,
-                maxOutputTokens: 100,
+                maxOutputTokens: 512,
             },
         });
         const result = await chat.sendMessage(userText);
-        const responseText = result.response.text();      
-        
+
+        console.log("Gemini raw result >>>", result);
+
+        const responseText = result.response?.text()
+            || result.candidates?.[0]?.content?.parts?.[0]?.text
+            || "Sorry. I am not able to respond right now.";
+
         // let mode = "Strategist";
         // if (sentimentLabel === "negative") mode = "Motivator";
         // if (sentimentLabel === "positive") mode = "Interviewer"
@@ -85,3 +92,4 @@ export async function POST(request) {
 async function humanizedGeminiTextResponse(aiText){
     const humanizedUserPrompt = `Hey, given the text, can you please make it more conversational, like a good friend explaining something to another friend: ${aiText}`
 }
+

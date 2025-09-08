@@ -43,13 +43,28 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
   
   useEffect(() => {
     if (!user || !sessionId) return;
+
+    const interactionsRef = collection(
+      firestore, 
+      "users", 
+      userId, 
+      "sessions", 
+      sessionId, 
+      "interactions"
+    )
     
-    const q = query(firestoreInteractions, orderBy("timestamp"));
+    const q = query(interactionsRef, orderBy("timestamp", "desc"));
     
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}));
-      setMessages(msgs);
-    });
+    const unsubscribe = onSnapshot(
+      q, 
+      (snapshot) => {
+        const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}));
+        setMessages(msgs.sort((a, b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0)));
+      }, 
+      (error) => {
+        console.error("Firestore onSnapshot error:", error);
+      }
+    );
 
     return () => unsubscribe();
   }, [user, sessionId]);
@@ -108,9 +123,10 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
         sender: "ai",
         timestamp: serverTimestamp(),
       });
+    } finally {
+        setLoading(false);
+        setInput("");
     }
-
-    setLoading(false);
   };
 
   const dictaphoneComplete = (transcript) => {
