@@ -1,17 +1,14 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
 
-export default function Dictaphone({setTranscript, dictaphoneComplete}){
+export default function Dictaphone({setTranscript, dictaphoneComplete, setListening}){
     
-    useEffect(() => {
-        if (typeof window !== "undefined"){
-            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        }
-    }, []);
-    
+
+    const [dictaphone, setDictaphone] = useState(false)
+   
     const {
         transcript,
         listening,
@@ -19,49 +16,70 @@ export default function Dictaphone({setTranscript, dictaphoneComplete}){
         browserSupportsSpeechRecognition
     } = useSpeechRecognition();
 
+
     useEffect(() => {
-        if(setTranscript){
-            setTranscript(transcript)
+        if (typeof window !== "undefined"){
+            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         }
-    }, [transcript]);
+    }, []);
+
+    // useEffect(() => {
+    //     if(setTranscript){
+    //         setTranscript(transcript)
+    //     }
+    // }, [transcript]);
 
     if (!browserSupportsSpeechRecognition) {
         return <span>Browser doesn't support speech recognition.</span>
     }
 
     function startListening(){
+        setDictaphone(true)
+        setListening(true);
+        resetTranscript();
         SpeechRecognition.startListening({continuous: true});
     }
 
     function stopListening(){
+        setDictaphone(false)
+        setListening(false);
         SpeechRecognition.stopListening();
+
         if (dictaphoneComplete) {
             dictaphoneComplete(transcript);
         }
+
+        resetTranscript();
     }
 
     return (
-        <div>
-            {/* <p className={`status ${listening ? 'on' : 'off'}`}>
-                Microphone: {listening ? 'on' : 'off'}
-            </p> */}
+        <div className="dictaphone-container">
             <button 
-                onClick={ 
-                    // SpeechRecognition.startListening({continuous: true})
-                    startListening
-                    }>
-                        <img style={{columnFill: "white"}} src="/play.svg" alt="starticon" />
+                onClick={startListening} className="mic-button" style={{
+                    // width: "40px",
+                    // height: "40px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: "5px",
+                    backgroundColor: !dictaphone ? "" : "#008ecc",
+                    border: "none",
+                    cursor: "pointer",
+                }}>
+                    {dictaphone ? 
+                        <div className="wave-dots">
+                          <span></span><span></span><span></span>
+                        </div>
+                        :
+                        <img style={{columnFill: "white"}} src="/mic.svg" alt="micicon" />
+                    }
             </button>
-            
-            <button 
-                onClick={
-                    stopListening
-                    }>
-                        Stop
-            </button>
-
-            {/* <button onClick={resetTranscript}>Reset</button> */}
-            {/* <p>{transcript}</p> */}
+            {dictaphone &&
+                <button 
+                    onClick={stopListening} className="stop-button">
+                            Stop Recording
+                </button>
+            }
         </div>
     )
 }

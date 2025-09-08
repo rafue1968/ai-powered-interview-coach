@@ -26,6 +26,7 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [listening, setListening] = useState(false)
 
   const firestoreInteractions = collection(firestore, "users", userId, "sessions", sessionId, "interactions");
   const bottomRef = useRef(null);
@@ -113,7 +114,8 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
   };
 
   const dictaphoneComplete = (transcript) => {
-    setInput(input + transcript);
+    setInput((prev) => prev + transcript);
+    setTranscript("");
   }
 
   return (
@@ -141,20 +143,24 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
       </div>
 
       <div className="input-area" style={{ display: "flex", gap: "0.5rem" }}>
-        <textarea 
-            type="text"
-            placeholder="Type your response..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            style={{ flex: 1, padding: "0.5rem" }}     
-            className="message-textarea"   
-        />
+        {listening ? 
+          <p>Recording has started<span className="dots"></span></p> :
+          <textarea 
+              type="text"
+              placeholder="Type your message..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              style={{ flex: 1, padding: "0.5rem" }}     
+              className="message-textarea"   
+          />
+        }
+        
 
         <button onClick={handleSend} disabled={loading}>
           Send
         </button>
         <div style={{display: "flex", alignItems: "center"}}>
-            <Dictaphone setTranscript={setTranscript} dictaphoneComplete={dictaphoneComplete} />
+            <Dictaphone setTranscript={setTranscript} dictaphoneComplete={dictaphoneComplete} setListening={setListening} />
         </div>
       </div>
     </div>

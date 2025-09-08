@@ -1,14 +1,21 @@
 import axios from "axios";
-import { useState, useRef } from "react";
+import { doc, updateDoc } from "firebase/firestore";
+import { useState, useRef, useEffect } from "react";
 
 
-export default function UploadResume({setResumeText, onComplete}){
+export default function UploadResume({setResumeText, onComplete, sessionsRef, selectedSessionID, skipIfExists}){
     const fileInputRef = useRef(null);
     const [error, setError] = useState("");
     const [file, setFile] = useState(null);
     const [summary, setSummary] = useState("");
     const [uploading, setUploading] = useState(false);
 
+
+    useEffect(() => {
+        if (skipIfExists) {
+            onComplete();
+        }
+    }, [skipIfExists])
 
     const handleFileUpload = async (e) => {
         e.preventDefault();
@@ -55,6 +62,12 @@ export default function UploadResume({setResumeText, onComplete}){
             setUploading(false);
             setSummary(data.summary);
             setResumeText(data.summary);
+
+            const sessionDocRef = doc(sessionsRef, selectedSessionID);
+            await updateDoc(sessionDocRef, {
+                resumeSummary: data.summary,
+                step: "ready"
+            });
             onComplete();
         } catch (err) {
             setError("Network or server error: " + err.message);

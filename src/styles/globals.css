@@ -54,6 +54,57 @@ a:hover{
     color: #ff4fa1;
 }
 
+.speaker-button{
+  background-color:lightblue;
+  
+}
+
+.speaker-button{
+  background-color:lightblue;
+  color: #051c4d;
+  font-weight:bold;
+}
+
+.dictaphone-container{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.stop-button{
+  width: 150px;
+  height: 60px;
+}
+
+.mic-button{
+  width: 60px;
+  height: 60px;
+}
+
+.mic-button, .stop-button {
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background-color: #e0e0e0; */
+  cursor: pointer;
+  padding: 3px 10px;
+}
+
+.mic-button{
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background: #0015ff; */
+}
+
+.mic-button img {
+  
+}
 
 button{
     font-size: 1rem;
@@ -651,4 +702,28 @@ a[href]{
   width: fit-content;
   border-radius: 20px;
   padding: 10px;
+}
+
+.wave-dots {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+}
+
+.wave-dots span{
+  display: inline-block;
+  width: 4px;
+  height: 8px;
+  background-color: #4acade;
+  border-radius: 2px;
+  animation: waveAnim 1s infinite ease-in-out;
+}
+
+.wave-dots span:nth-child(2) {animation-delay: 0.2s;}
+.wave-dots span:nth-child(3) {animation-delay: 0.4s;}
+/* .wave-dots span:nth-child(4) {animation-delay: 0.6s;} */
+
+@keyframes waveAnim {
+  0%,  100% { height: 6px;}
+  50% {height: 18px;}
 }

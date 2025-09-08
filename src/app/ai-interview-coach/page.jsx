@@ -5,7 +5,7 @@
 // import textGemini from "../../components/testGemini"
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, setDoc, collection, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, onSnapshot, serverTimestamp, updateDoc } from "firebase/firestore";
 import  "../../lib/firebaseClient";
 import { useRouter } from "next/navigation";
 import Loading from "../../components/Loading";
@@ -66,14 +66,46 @@ export default function Page(){
               ...doc.data(),
           }));
 
-          sessionList.sessionId
-
           setSessions(sessionList);
+
+          const activeSession = sessionList.find(s => s.step && s.step !== "input");
+          
+          if (activeSession){
+            setSelectedSessionID(activeSession.sessionId);
+
+
+            const type = activeSession.interviewType || null;
+
+            setMode(type);
+
+            if (type === "resume" && activeSession.resumeSummary) {
+              setResumeText(activeSession.resumeSummary);
+              setReady(true);
+            } else if (type === "jobrole" && activeSession.jobRole) {
+              setJobRole(activeSession.jobRole);
+              setReady(true);
+            } else {
+              setReady(false);
+            }
+
+            setReady(activeSession.step === "ready" || activeSession.step === "chat");
+            setJobRole(activeSession.jobRole || "");
+            setResumeText(activeSession.resumeSummary || "");
+          }
+
           setLoading(false);
       });
 
       return () => unsubscribe();
-    }, [user])
+    }, [user]);
+
+
+    useEffect(() => {
+      if (!ready || !selectedSessionID || !sessionsRef) return;
+
+      const sessionDocRef = doc(sessionsRef, selectedSessionID);
+      updateDoc(sessionDocRef, {step: "chat"});
+    }, [ready, selectedSessionID, sessionsRef]);
 
 
     const createSession = async (sessionName, mode) => {
@@ -83,6 +115,7 @@ export default function Page(){
             sessionId: sessionId,
             name: sessionName,
             interviewType: mode,
+            step: "input",
             createdAt: serverTimestamp(),
         }
 
@@ -104,6 +137,19 @@ export default function Page(){
       setSelectedSessionID(sessionId);
     }
 
+
+    const redirectInterface = async () => {
+
+      if (sessionsRef && selectedSessionID) {
+        const sessionDocRef = doc(sessionsRef, selectedSessionID);
+        await updateDoc(sessionDocRef, {step: "input"});
+      }
+
+      setSelectedSessionID("")
+      setReady(false);
+      setMode(null)
+    }
+
     
     if (loading) return <Loading />;
 
@@ -114,10 +160,11 @@ export default function Page(){
           <SessionsList createSession={createSession} sessions={sessions} selectSessionID={selectSessionID} />          
       )
     } else if (mode && selectedSessionID && !ready){
-      content = mode === "resume" ? (
-         <UploadResume setResumeText={setResumeText} onComplete={() => setReady(true)} />
+      content = mode === "resume" ?       
+      (
+         <UploadResume setResumeText={setResumeText} onComplete={() => setReady(true)} sessionsRef={sessionsRef} selectedSessionID={selectedSessionID} skipIfExists={resumeText} />
       ) : (
-        <JobRoleInput setJobRole={setJobRole} onComplete={() => setReady(true)} />
+        <JobRoleInput setJobRole={setJobRole} onComplete={() => setReady(true)} sessionsRef={sessionsRef} selectedSessionID={selectedSessionID} skipIfExists={jobRole} />
       )
     } else if (mode && selectedSessionID && ready){
       content = (
@@ -134,7 +181,8 @@ export default function Page(){
     return (
       <div>
         {content}
-        <div style={{display: "flex", justifyContent:"end", marginTop: "90px"}}>
+        <div style={{display: "flex", justifyContent:"center"}}>
+            <button onClick={redirectInterface} style={{marginTop: "30px", width: "200px", fontSize: "15px", fontWeight: "600"}}>Return to Interview Sessions Interface</button>
         </div>
       </div>
     )

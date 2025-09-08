@@ -35,8 +35,14 @@ export default function AudioTTSButton ({text}) {
     };
 
     return (
-        <button onClick={handlePlay} disabled={loading}>
-            {loading ? "Loading..." : <img src="/speaker-icon.svg" height="25px" width="25px" alt="speakericon" />}
+        <button onClick={handlePlay} disabled={loading} className="speaker-button">
+            {loading ? `Loading${<span className="dots"></span>}` 
+                : 
+                <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px"
+                }}>Play Audio <img src="/speaker-icon.svg" height="20px" width="20px" alt="speakericon" /></div>}
         </button>
     )
 }
