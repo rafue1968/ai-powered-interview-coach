@@ -147,6 +147,18 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
           marginBottom: "1rem",
         }}
       >
+
+        {messages.length == 0 ? 
+        <div style={{height: "100%"}}>
+          <div style={{display: "flex"}}>
+            <button className="chatStartButton">Hey, I am ready.</button>
+          </div>
+        </div>
+        
+        :
+        
+        ""}
+
         <div>
             {messages.map((msg) => (
                 <MessageBubble key={msg.id} message={msg} />

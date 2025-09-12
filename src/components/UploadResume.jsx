@@ -15,7 +15,7 @@ export default function UploadResume({setResumeText, onComplete, sessionsRef, se
         if (skipIfExists) {
             onComplete();
         }
-    }, [skipIfExists])
+    }, [skipIfExists, onComplete]);
 
     const handleFileUpload = async (e) => {
         e.preventDefault();
@@ -27,19 +27,13 @@ export default function UploadResume({setResumeText, onComplete, sessionsRef, se
 
         if (!file){ 
             setError("Please select a file first");
+            setUploading(false);
             return;
         }
 
         try {
             const formData = new FormData();
             formData.append("file", file);
-
-            // const res = await fetch("/api/summarise-resume", {
-            //     method: "POST",
-            //     body: formData,
-            // });
-
-            // const res = await axios.post("/api/summarise-resume", formData);
 
             const res = await axios.post("/api/summarise-resume", formData, {
                 headers: {
@@ -48,18 +42,14 @@ export default function UploadResume({setResumeText, onComplete, sessionsRef, se
             });
 
             const data = res.data;
-            console.log("Upload Resume Result:", data)
+            // const contentType = res.headers["content-type"];
+            // if (!contentType || !contentType.includes("application/json")) {
+            //     throw new Error("Server returned unexpected response");
+            // }
 
-            const contentType = res.headers["content-type"];
-            if (!contentType || !contentType.includes("application/json")) {
-                throw new Error("Server returned unexpected response");
-            }
-
-            if (res.status !== 200) {
-                throw new Error(data.error || "Something went wrong");
-            }
-
-            setUploading(false);
+            // if (res.status !== 200) {
+            //     throw new Error(data.error || "Something went wrong");
+            // }
             setSummary(data.summary);
             setResumeText(data.summary);
 
@@ -72,35 +62,48 @@ export default function UploadResume({setResumeText, onComplete, sessionsRef, se
         } catch (err) {
             setError("Network or server error: " + err.message);
             setUploading(false);
+        } finally {
+            setUploading(false);
         }
 
 
     };
     
-
-
     return (
         <div className="center-screen">
             <div className="upload-container">
-                <h2 className="upload-title">Upload your resume</h2>
+                <h2 className="upload-title">Upload your Resume (PDF Files are accepted)</h2>
                 <form onSubmit={handleFileUpload} className="upload-form" >
                     <input
                         type="file"
-                        accept=".pdf,.docx,.txt, .doc"
+                        accept=".pdf"
                         ref={fileInputRef}
-                        onChange={(e) => setFile(e.target.files[0])}
+                        onChange={(e) => {
+                            const selectedFile = e.target.files[0];
+                            if (selectedFile){
+                                if (selectedFile.type !== "application/pdf"){
+                                    setError("Friendly reminder: Only PDF resumes are accepted.");
+                                    setFile(null);
+                                } else {
+                                    setError("");
+                                    setFile(selectedFile);
+                                }
+                            }
+                            
+                        }}
                         required
                         className="upload-input"
                         style={{
                             color: "gray",
                         }}
+                        
                     />
                     <button type="submit" disabled={uploading} className="upload-button">
                         {uploading ? "Uploading" : "Upload and Summarise"}
                     </button>
                 </form>
 
-                {uploading && <p className="upload-status">Uploading and extracting text...</p>}
+                {uploading && <p className="upload-status">Uploading and extracting text<span className="dots"></span></p>}
                 {error && <p className="upload-error">{error}</p>}
 
                 {

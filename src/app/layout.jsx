@@ -7,6 +7,7 @@ import { auth } from "../lib/firebaseClient";
 import ShowCurrentUserLogoutButton from "../components/ShowCurrentUserLogoutButton"
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
+import InstructionsPopup from "../components/InstructionsPopup"
 
 
 export default function RootLayout({children}) {
@@ -26,6 +27,7 @@ export default function RootLayout({children}) {
       <body>
         { user ? <ShowCurrentUserLogoutButton /> : "" }
         {children}
+        <InstructionsPopup />
       </body>
     </html>
   );

@@ -9,7 +9,7 @@ export default function JobRoleInput({setJobRole, onComplete, sessionsRef, selec
         if (skipIfExists) {
             onComplete();
         }
-    }, [skipIfExists])
+    }, [skipIfExists, onComplete]);
     
     
     const handleSubmit = async (e) => {
@@ -27,8 +27,7 @@ export default function JobRoleInput({setJobRole, onComplete, sessionsRef, selec
         })
 
         onComplete();
-        
-    }
+    };
 
     return (
         <div className="center-screen">
@@ -42,7 +41,7 @@ export default function JobRoleInput({setJobRole, onComplete, sessionsRef, selec
                         name="jobRole"
                         required
                         className="jobrole-input"
-                        placeholder="e.g., Software Engineer"
+                        placeholder="e.g. Software Engineer, Project Manager, Scientist etc."
                     />
                     <button type="submit" className="jobrole-button">
                         Start

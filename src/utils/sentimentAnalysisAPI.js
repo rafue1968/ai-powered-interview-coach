@@ -6,7 +6,7 @@ export async function analyzeSentiment(text){
             text: text
         });
 
-        const sentiment = response.data || 0;
+        const sentiment = response.data;
 
         return sentiment;
     } catch (err){
