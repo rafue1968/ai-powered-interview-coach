@@ -7,11 +7,15 @@ import JobRoleInput from "../../../../components/JobRoleInput";
 import { auth, firestore } from "../../../../lib/firebaseClient";
 import Loading from "../../../../components/Loading";
 
+export const dynamic = "force-dynamic";
+
 export default function Page() {
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
+  const { id } = params;
   const [user, setUser] = useState("");
   const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
   
 
   useEffect(() => {
@@ -29,13 +33,17 @@ export default function Page() {
 
     const fetchSession = async () => {
       const snap = await getDoc(doc(firestore, "users", auth.currentUser.uid, "sessions", id));
-      if (snap.exists()) setSession(snap.data());
-      else router.push("/interview-sessions");
+      if (snap.exists()) {
+        setSession(snap.data());
+      } else {
+        router.replace("/interview-sessions");
+      }
+      setLoading(false)
     };
     fetchSession();
   }, [id, user, router]);
 
-  if (!session) return <Loading text="Loading session" />;
+  if (loading) return <Loading text="Loading session" />;
 
   const onComplete = async (updatedFields) => {
     await updateDoc(doc(firestore, "users", user.uid, "sessions", id), {

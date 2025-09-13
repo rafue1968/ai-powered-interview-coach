@@ -5,6 +5,9 @@ import { auth, firestore } from "../../../lib/firebaseClient";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import Loading from "../../../components/Loading";
 
+
+export const dynamic = "force-dynamic";
+
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();

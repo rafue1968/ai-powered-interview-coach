@@ -6,6 +6,9 @@ import { firestore, auth } from "../../../../lib/firebaseClient";
 import InterviewChat from "../../../../components/InterviewChat";
 import Loading from "../../../../components/Loading";
 
+
+export const dynamic = "force-dynamic";
+
 export default function Page() {
   const { id } = useParams();
   const router = useRouter();
