@@ -1,7 +1,3 @@
-/**
- * @param {Array} firestoreInteractions - Array of { role: 'user' | 'model', text: string }
- * @returns {Array} Gemini-formatted chat history
- */
 export function convertFirestoreToGeminiHistory(firestoreInteractions) {
     if (!Array.isArray(firestoreInteractions)) return [];
 

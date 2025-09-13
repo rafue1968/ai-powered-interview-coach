@@ -5,6 +5,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, firestore } from "../lib/firebaseClient.js" //"../../lib/firebase.js";
 import { useRouter } from "next/navigation";
+import NavigationButton from "./NavigationButton.jsx";
 // import { login } from "../actions/login.js" //"app/actions/login";
 // import { login } from "app/actions/login.js";
 
@@ -55,7 +56,7 @@ export default function LoginForm() {
 
             console.log(role);
 
-            router.push("/ai-interview-coach");
+            router.push("/interview-sessions");
   
             // if (role === "admin") {
             // router.push("/admin");
@@ -79,7 +80,7 @@ export default function LoginForm() {
         //     setError("Invalid role.")
         // }
       } catch (err) {
-        setError("Login failed: " + err.message);
+        setError("Login failed. Please try again.");
       }
 
     };
@@ -109,21 +110,19 @@ export default function LoginForm() {
     // }
   
     return (
-      // <div className="card">
         <form onSubmit={handleLogin} className="card" >
           <div style={{display: "flex", flexDirection: "column", gap: "0.5rem"}}>
             <h2 style={{
               fontSize: "20px"
             }}><strong><center>Login</center></strong></h2>
-            {error && <p style={{ color: "red" }}>{error}</p>}
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password"  required />
+            {error && <p className="error-text">{error}</p>}
             <button type="submit">Log In</button>
             <a href="/signup">New here? Click here to sign up</a>
-            {/* <button><a href="/">Go back to Home Page</a></button> */}
+            <NavigationButton routeText="/" buttonText="Exit" className="exit-button" />
           </div>
         </form>
-      // </div>
 
     );
   }

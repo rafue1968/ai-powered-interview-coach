@@ -1,7 +1,7 @@
 @import "tailwindcss";
-@tailwind base;
+/* @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; */
 
 /* Optional: Add any global custom styles below */
 /* body {
@@ -103,9 +103,9 @@ a:hover{
   /* background: #0015ff; */
 }
 
-.mic-button img {
+/* .mic-button img {
   
-}
+} */
 
 button{
     font-size: 1rem;
@@ -345,11 +345,12 @@ a[href]{
   font-weight: bold;
   font-family: sans-serif;
   color: #29002b;
-  /* text-align: center; */
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  height: 100vh;
+  gap: 10px;
 }
 
 .dots::after {
@@ -461,7 +462,7 @@ a[href]{
   background: #ffffff;
   font-size: 0.95rem;
   transition: border 0.2s ease, box-shadow 0.2s ease;
-  color: grey;
+  color: #4b5563;
 }
 
 .form-input:focus,
@@ -494,57 +495,64 @@ a[href]{
 
 .upload-container {
   padding: 1.5rem;
-  background: #ffffff;
+  background: rgb(193, 77, 77);
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   max-width: 600px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 .upload-title {
   font-size: 1.3rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: #1e293b;
+  color: #fff;
 }
 
 .upload-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  background-color: rgba(164, 13, 13, 0.389);
 }
 
 .upload-input {
   padding: 0.6rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #fff;
   border-radius: 10px;
-  background: #f8fafc;
+  background: #fffafa;
+  color: rgb(43, 12, 1);
   font-size: 0.95rem;
   cursor: pointer;
-  transition: border 0.2s ease;
+  transition: border 0.2s ease, background 0.2s ease;
 }
 
 .upload-input:hover {
-  border-color: #2563eb;
+  background: #ffe6e6;
+  border-color: #fff;
 }
 
 .upload-button {
   padding: 0.75rem 1.25rem;
   border-radius: 10px;
   border: none;
-  background: #2563eb;
-  color: #fff;
+  background: #fff;
+  color: rgb(193, 77, 77);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .upload-button:disabled {
-  background: #94a3b8;
+  background: #ffe6e6;
+  color: rgb(150, 50, 50);
   cursor: not-allowed;
 }
 
 .upload-button:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: #d8621d3d;
+  color: white;
 }
 
 .upload-button:active:not(:disabled) {
@@ -554,7 +562,8 @@ a[href]{
 .upload-status {
   margin-top: 0.5rem;
   font-size: 0.9rem;
-  color: #475569;
+  color: white;
+  font-weight: 500;
 }
 
 .upload-error {
@@ -589,10 +598,11 @@ a[href]{
 
 .jobrole-container {
   padding: 1.5rem;
-  background: #ffffff;
+  background: rgb(180, 104, 104);
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   max-width: 450px;
+  border: rgba(255, 0, 0, 0.302) solid;
 }
 
 .jobrole-form {
@@ -600,6 +610,7 @@ a[href]{
   flex-direction: column;
   gap: 1rem;
   padding: 50px;
+  background-color: rgb(180, 104, 104);
 }
 
 .jobrole-label {
@@ -616,12 +627,15 @@ a[href]{
   font-size: 0.95rem;
   transition: border 0.2s ease, box-shadow 0.2s ease;
   width: 300px;
+  background-color: #fffafa;
+  color: rgb(43, 12, 1);
+  
 }
 
 .jobrole-input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
 }
 
 .jobrole-button {
@@ -629,16 +643,17 @@ a[href]{
   padding: 0.75rem 1.5rem;
   border-radius: 10px;
   border: none;
-  background: #2563eb;
+  background:rgb(193, 77, 77);
   color: #fff;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
+  width: 100%;
 }
 
 .jobrole-button:hover {
-  background: #1d4ed8;
+  background: rgb(150, 50, 50);
 }
 
 .jobrole-button:active {
@@ -722,7 +737,6 @@ a[href]{
 
 .wave-dots span:nth-child(2) {animation-delay: 0.2s;}
 .wave-dots span:nth-child(3) {animation-delay: 0.4s;}
-/* .wave-dots span:nth-child(4) {animation-delay: 0.6s;} */
 
 @keyframes waveAnim {
   0%,  100% { height: 6px;}
@@ -736,6 +750,17 @@ a[href]{
   background-color: rgb(3, 163, 3);
 }
 
+.instructionsButton{
+  background-color: rgba(255, 0, 0, 0.461);
+  color: rgb(255, 255, 255);
+  position: fixed;
+  z-index: auto;
+  bottom: 10px
+}
+
+.instructionsButton:hover{
+  background-color: rgb(255, 0, 0);
+}
 
 .instructionsInteface{
   position: fixed;
@@ -758,19 +783,147 @@ a[href]{
   list-style-type: disc;
   list-style-position: outside;
   margin: 0.5rem 0;
-  padding-left: 1.25rem; /* indent bullets */
+  padding-left: 1.25rem;
 }
 
-/* nested lists -> different marker and slightly smaller indent */
 .instructionsInteface ul ul {
   list-style-type: circle;
   margin-top: 0.25rem;
   padding-left: 1rem;
 }
 
-/* tidy spacing of list items */
 .instructionsInteface li {
   margin-bottom: 0.35rem;
   line-height: 1.4;
 }
 
+.closeInstructionPopup{
+  background-color: red;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin-top: 10px;
+  position: relative;
+  left: 45%;
+}
+
+.closeInstructionPopup:hover{
+  background-color: rgba(255, 0, 0, 0.63);
+}
+
+.body-home{
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.homeDiv{
+  background-color: rgb(180, 104, 104);
+  padding: 40px 60px;
+  text-align: center;
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.body-home h1{
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: rgba(123, 5, 5, 0.336);
+}
+
+.homeDiv .button-group {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.homeDiv button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.homeDiv .login-button {
+  background-color: white;
+  color: rgb(180, 104, 104);
+}
+
+.homeDiv .login-button:hover {
+  background-color: #ffe6e6;
+}
+
+.homeDiv .signup-button {
+  background-color: transparent;
+  border: 2px solid white;
+  color: white;
+}
+
+.homeDiv .signup-button:hover {
+  background-color: white;
+  color: rgb(180, 104, 104);
+}
+
+.exit-button{
+  padding: 10px 30px;
+  letter-spacing: 5px;
+  background-color: rgb(193, 77, 77);
+  margin-left: 25%;
+}
+
+.exit-button:hover{
+  background-color: #ff4fa1;
+}
+
+
+.redirectInterfaceButton{
+    width: "200px";
+    font-size: "15px";
+    font-weight: "600";
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: rgb(205, 126, 92);
+}
+
+.redirectInterfaceButton:hover{
+  background-color: rgb(234, 62, 62);
+}
+
+
+.note-p{
+  color: rgba(255, 0, 0, 0.728);
+  font-size: 20px;
+  position: fixed;
+  z-index: 1000;
+  bottom: 50px;
+  left: 5px;
+  font-weight: bold;
+}
+
+.error-text{
+  color: #ff4d4f;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+
+.home-intro{
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto 2rem auto;
+  line-height: 1.6;
+}

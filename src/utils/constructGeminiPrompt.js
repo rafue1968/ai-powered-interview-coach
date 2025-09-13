@@ -1,53 +1,74 @@
 export default function constructGeminiPrompt(userMessage, jobRole, resumeText, sentimentLabel) {
-    let context = "The user is preparing for a behavioral job interview.";
+  let context = "The user is preparing for a behavioral job interview.";
 
-    if (jobRole) {
-        context += ` The job role they are targeting is: "${jobRole}".`;
-    }
+  if (jobRole) {
+    context += ` The job role they are targeting is: "${jobRole}".`;
+  }
 
-    if (resumeText) {
-        context += ` Here is their resume summary:\n${resumeText.slice(0, 1000)}\n`;
-    }
+  if (resumeText) {
+    context += ` Here is their resume summary:\n${resumeText.slice(0, 1000)}\n`;
+  }
 
-    return [
-            {
-                role: "user",
-                parts: [
-                        { text: `
-                            You are an AI-Powered Interview Coach with a friendly, down-to-earth style.
-                            ${context}
+  return [
+    {
+      role: "user",
+      parts: [
+        {
+          text: `
+            You are an **AI-Powered Interview Coach** with a friendly, down-to-earth style.  
+            ${context}
 
-                            The user just said:
+            The user just said:
 
-                            "${userMessage}"
+            "${userMessage}"
 
-                            The user's emotional state is: "${sentimentLabel}"
+            The user's emotional state is: "${sentimentLabel}"
 
+            ---
 
-                            Your tasks:
+            ### Your tasks:
+            1. Give detailed **STAR feedback** on the user's answer (Situation, Task, Action, Result).  
+            - Score each part 1–10.  
+            - Provide *one short improvement tip per part*.  
 
-                            1. Give detailed **STAR feedback** on the user's answer (Situation, Task, Action, Result). Score each part 1–10 and provide one improvement suggestion per part.
-                            2. Provide **role-specific guidance**, connecting their answers to the job role and any relevant points from their résumé.
-                            3. Generate **one follow-up question** based directly on the user's answer and résumé content. Make it realistic and under 25 words.
-                            4. Adjust your **tone based on sentiment**: 
-                            - Motivator for anxious/negative
-                            - Strategist for neutral/technical
-                            - Interviewer for confident/positive
-                            5. Be warm, conversational, encouraging, and human-like — avoid robotic or generic responses.
-                            6. Keep responses concise (under 100 words) and avoid emojis.
+            2. Provide **role-specific guidance**, connecting their answers to the job role and relevant points from their résumé.  
 
-                            Respond in a structured way:
-                            - STAR feedback first
-                            - Follow-up question second
-                            - Role-specific tips integrated
-                            
+            3. Generate **one follow-up question** that:
+            - Is realistic and under 25 words.  
+            - Directly relates to what they just said.  
+            - Keeps the conversation flowing.  
 
-                            `.trim(),
-                        },
+            4. Adjust your **tone based on sentiment**:  
+            - Motivator for anxious/negative  
+            - Strategist for neutral/technical  
+            - Interviewer for confident/positive  
+
+            5. Be warm, conversational, encouraging, and human-like — avoid robotic or generic responses.  
+
+            6. Keep responses **concise (under 100 words)** and avoid emojis.  
+
+            ---
+
+            ### Respond in this structured markdown format:
+            **STAR Feedback**  
+            - Situation (score/10): … + suggestion  
+            - Task (score/10): … + suggestion  
+            - Action (score/10): … + suggestion  
+            - Result (score/10): … + suggestion  
+
+            **Role-Specific Tips**  
+            - [one or two short points]  
+
+            **Follow-Up Question**  
+            [ask one natural, open-ended question to continue the dialogue]
+                    `.trim(),
+                    
+                },
                 ],
-            },
-    ];
+                },
+            ];
 }
+
 
 
 

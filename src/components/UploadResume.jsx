@@ -1,9 +1,8 @@
 import axios from "axios";
-import { doc, updateDoc } from "firebase/firestore";
 import { useState, useRef, useEffect } from "react";
 
 
-export default function UploadResume({setResumeText, onComplete, sessionsRef, selectedSessionID, skipIfExists}){
+export default function UploadResume({ onComplete, skipIfExists}){
     const fileInputRef = useRef(null);
     const [error, setError] = useState("");
     const [file, setFile] = useState(null);
@@ -13,13 +12,12 @@ export default function UploadResume({setResumeText, onComplete, sessionsRef, se
 
     useEffect(() => {
         if (skipIfExists) {
-            onComplete();
+            onComplete(skipIfExists);
         }
     }, [skipIfExists, onComplete]);
 
     const handleFileUpload = async (e) => {
         e.preventDefault();
-        console.log(file);
         setError("");
         setUploading(true);
         setSummary("");
@@ -42,37 +40,20 @@ export default function UploadResume({setResumeText, onComplete, sessionsRef, se
             });
 
             const data = res.data;
-            // const contentType = res.headers["content-type"];
-            // if (!contentType || !contentType.includes("application/json")) {
-            //     throw new Error("Server returned unexpected response");
-            // }
-
-            // if (res.status !== 200) {
-            //     throw new Error(data.error || "Something went wrong");
-            // }
             setSummary(data.summary);
-            setResumeText(data.summary);
-
-            const sessionDocRef = doc(sessionsRef, selectedSessionID);
-            await updateDoc(sessionDocRef, {
-                resumeSummary: data.summary,
-                step: "ready"
-            });
-            onComplete();
+            onComplete(data.summary);
         } catch (err) {
             setError("Network or server error: " + err.message);
-            setUploading(false);
         } finally {
             setUploading(false);
         }
-
 
     };
     
     return (
         <div className="center-screen">
             <div className="upload-container">
-                <h2 className="upload-title">Upload your Resume (PDF Files are accepted)</h2>
+                <h2 className="upload-title">Upload your Resume (PDF only)</h2>
                 <form onSubmit={handleFileUpload} className="upload-form" >
                     <input
                         type="file"
@@ -80,23 +61,19 @@ export default function UploadResume({setResumeText, onComplete, sessionsRef, se
                         ref={fileInputRef}
                         onChange={(e) => {
                             const selectedFile = e.target.files[0];
-                            if (selectedFile){
-                                if (selectedFile.type !== "application/pdf"){
-                                    setError("Friendly reminder: Only PDF resumes are accepted.");
-                                    setFile(null);
-                                } else {
-                                    setError("");
-                                    setFile(selectedFile);
-                                }
+                            if (selectedFile?.type !== "application/pdf"){
+                                setError("Only PDF resumes are accepted.");
+                                setFile(null);
+                            } else {
+                                setError("");
+                                setFile(selectedFile);
                             }
-                            
                         }}
                         required
                         className="upload-input"
                         style={{
                             color: "gray",
                         }}
-                        
                     />
                     <button type="submit" disabled={uploading} className="upload-button">
                         {uploading ? "Uploading" : "Upload and Summarise"}
@@ -106,14 +83,14 @@ export default function UploadResume({setResumeText, onComplete, sessionsRef, se
                 {uploading && <p className="upload-status">Uploading and extracting text<span className="dots"></span></p>}
                 {error && <p className="upload-error">{error}</p>}
 
-                {
+                {/* {
                     summary && (
                         <div className="upload-summary">
                             <h3>Resume Summary:</h3>
                             <pre>{summary}</pre>
                         </div>
                     )
-                }
+                } */}
                 
             </div>
         </div>

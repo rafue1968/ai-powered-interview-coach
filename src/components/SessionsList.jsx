@@ -15,7 +15,7 @@ export default function SessionsList({ sessions = [], createSession, selectSessi
   return (
     <div className="sessions-container">
       <div className="sessions-section">
-        <h3 className="sessions-heading">Do you wish to start a new session?</h3>
+        <h3 className="sessions-heading">Do you wish to start a new interview session?</h3>
         <SessionFormField createSession={createSession} />
       </div>
 
@@ -25,10 +25,10 @@ export default function SessionsList({ sessions = [], createSession, selectSessi
           {sessions.map((session) => (
             <li key={session.id} className="sessions-item">
               <button
-                className="session-button"
-                onClick={() => selectSessionID(session.id, session.interviewType)}
+                  className="session-button"
+                  onClick={() => selectSessionID(session.id)}
               >
-                {session.name}
+                {session.name} ({session.interviewType})
               </button>
             </li>
           ))}

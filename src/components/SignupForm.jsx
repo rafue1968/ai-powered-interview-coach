@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, firestore } from "../lib/firebaseClient.js" //"../../firebase/config" //"firebase/config";
+import { auth, firestore } from "../lib/firebaseClient.js"
 import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import NavigationButton from "./NavigationButton.jsx";
 
 
 export default function SignupForm(){
@@ -27,9 +28,9 @@ export default function SignupForm(){
             });
             
             alert(`You have registered as ${email} successfully!`);
-            router.push("/ai-interview-coach");
+            router.push("/interview-sessions");
         } catch (error) {
-            setError(`Registration failed: ${error.message}`);
+            setError(`Registration failed. Please try again.`);
         }
     };
 
@@ -39,8 +40,6 @@ export default function SignupForm(){
                 <h2 style={{
                     fontSize: "20px"
                 }}><strong><center>Register as a New User</center></strong></h2>
-
-                {error && <p style={{color: "red"}}>{error}</p>}
 
                 <input 
                     type="email" 
@@ -60,9 +59,11 @@ export default function SignupForm(){
                     maxLength={64}
                 />
 
-                <button type="submit">Register</button>
+                {error && <p className="error-text">{error}</p>}
 
+                <button type="submit">Register</button>
                 <a href="/login">Already registered? Click here to login</a>
+                <NavigationButton routeText="/" buttonText="Exit" className="exit-button" />
             </div>
         </form>
     );

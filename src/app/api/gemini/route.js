@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 import { db } from "../../../lib/firebaseAdmin";
 import constructGeminiPrompt from "../../../utils/constructGeminiPrompt"
 import { analyzeSentiment } from "../../../utils/sentimentAnalysisAPI"
-import logSessionData from "../../../utils/logSessionData";
 
 const apiKey = process.env.GEMINI_API_KEY;
 
@@ -35,18 +34,13 @@ export async function POST(request) {
     try {
         const { message, history, jobRole, resumeText} = await request.json();
 
-        // console.log("Received from client:", { message, history, jobRole, resumeText });
-
         const userText = typeof message === "string" ? message : message?.text;
-
         const sentimentResult = analyzeSentiment(userText);
         const sentimentLabel = sentimentResult.sentiment;
 
         const systemPrompt = constructGeminiPrompt(userText, jobRole, resumeText, sentimentLabel);
         
         const combinedHistory = [...systemPrompt, ...history];
-
-        console.log("Combined history >>>", JSON.stringify(combinedHistory, null, 2));
 
         const model = genAI.getGenerativeModel({model: "gemini-2.0-flash"});
 
@@ -59,17 +53,9 @@ export async function POST(request) {
         });
         const result = await chat.sendMessage(userText);
 
-        console.log("Gemini raw result >>>", result);
-
         const responseText = result.response?.text()
             || result.candidates?.[0]?.content?.parts?.[0]?.text
             || "Sorry. I am not able to respond right now.";
-
-        // let mode = "Strategist";
-        // if (sentimentLabel === "negative") mode = "Motivator";
-        // if (sentimentLabel === "positive") mode = "Interviewer"
-
-        // await logSessionData("demoUser", jobRole, resumeText, userText, responseText, sentimentLabel, mode);
 
         return NextResponse.json({ response: responseText }, {status: 200})
 
@@ -87,9 +73,3 @@ export async function POST(request) {
         );
     }
 }
-
-
-async function humanizedGeminiTextResponse(aiText){
-    const humanizedUserPrompt = `Hey, given the text, can you please make it more conversational, like a good friend explaining something to another friend: ${aiText}`
-}
-

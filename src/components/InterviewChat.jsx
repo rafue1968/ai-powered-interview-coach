@@ -98,7 +98,7 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
             resumeText,
         });
 
-        const aiText = res.data?.response || "Hmm, I couldn't think of a helpful response. Can you try rephrasing?";
+        const aiText = res.data?.response || "Sorry. I am unable to respond at this moment. Please try again.";
 
 
       await addDoc(firestoreInteractions, {
@@ -134,6 +134,8 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
     setTranscript("");
   }
 
+
+
   return (
     <div className="chat-container" style={{ maxWidth: 600, margin: "auto" }}>
       <div
@@ -151,7 +153,13 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
         {messages.length == 0 ? 
         <div style={{height: "100%"}}>
           <div style={{display: "flex"}}>
-            <button className="chatStartButton">Hey, I am ready.</button>
+            <MessageBubble
+              message={{
+                id: "intro",
+                sender: "ai",
+                text: `Hi there! I'm your AI Interview Coach. Let's get started — type your first response as if you’re answering a behavioral interview question.`,
+              }}
+            />
           </div>
         </div>
         
@@ -175,7 +183,7 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
           <p>Recording has started<span className="dots"></span></p> :
           <textarea 
               type="text"
-              placeholder="Type your message..."
+              placeholder={messages.length == 0 ? "Type your first response here to begin your mock interview..." : "Type your message..."}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               style={{ flex: 1, padding: "0.5rem" }}     
@@ -191,6 +199,7 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
             <Dictaphone setTranscript={setTranscript} dictaphoneComplete={dictaphoneComplete} setListening={setListening} />
         </div>
       </div>
+      <p className="note-p">Note: The AI Coach can make mistakes.</p>
     </div>
   );
 }

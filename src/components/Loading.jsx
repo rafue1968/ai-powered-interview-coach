@@ -1,9 +1,9 @@
 "use client";
 
 
-export default function Loading(){
+export default function Loading({text = ""}){
 
     return(
-        <div className="loading">Loading <span className="dots"></span></div>
+        <div className="loading">{text? text : "Loading"} <span className="dots"></span></div>
     )
 }

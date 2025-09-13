@@ -113,7 +113,6 @@ if (!server) {
   server.on("connection", (ws) => {
     let assemblySocket;
 
-    // Step 1: Connect to AssemblyAI real-time endpoint
     fetch("https://api.assemblyai.com/v2/realtime/token", {
       method: "POST",
       headers: {
@@ -136,7 +135,6 @@ if (!server) {
         };
       });
 
-    // Step 2: Pipe browser audio to AssemblyAI
     ws.on("message", (msg) => {
       if (assemblySocket?.readyState === WebSocket.OPEN) {
         assemblySocket.send(msg);

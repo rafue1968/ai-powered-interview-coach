@@ -7,7 +7,7 @@ export default function InstructionsPopup() {
 
   return (
     <div>
-      <motion.button layoutId="popup" onClick={() => setIsOpen(true)}>
+      <motion.button layoutId="popup" onClick={() => setIsOpen(true)} className="instructionsButton">
         Need Help? Click here for Instructions
       </motion.button>
 
@@ -21,17 +21,18 @@ export default function InstructionsPopup() {
               transition={{ duration: 0.3 }}
               className="instructionsInteface"
             >
+                <h1 style={{fontSize: "30px", textAlign: "center"}}>Instructions</h1>
               <h1 style={{ fontSize: "20px" }}>1. Register / Login</h1>
               <ul>
                 <li>Go to the <strong>Login</strong> or <strong>Register</strong> page.</li>
                 <li>If you’re new, create an account with your email and password</li>
                 <li>
-                  Once logged in or registered, you’ll be redirected to your
-                  Interview Sessions Interface.
+                  Once logged in or registered, you’ll be redirected to the
+                  <em>Interview Sessions</em> page.
                 </li>
               </ul>
 
-              <h1 style={{ fontSize: "20px" }}>2. Interview Sessions Interface / Login</h1>
+              <h1 style={{ fontSize: "20px" }}>2. Interview Sessions Interface</h1>
               <ul>
                 <li>
                   On this page, this is where you can create interview sessions or select an existing session.
@@ -40,22 +41,19 @@ export default function InstructionsPopup() {
                   As a user, you can:
                   <ul>
                     <li>
-                      <strong>Create a new interview session:</strong> Provide a session name and select an interview type (Type job role manually or insert a resume). Then click the 'New Session' button.
+                      <strong>Create an new interview session:</strong> Provide a session name and select an interview type (<em>Type job role manually or insert a resume</em>). Then click the <strong>'Create New Interview Session'</strong> button.
                     </li>
                     <li>
                       <strong>Select an existing session:</strong> Continue from where you left off.
                     </li>
                   </ul>
                 </li>
-                <li>
-                  Once logged or registered in, you’ll be redirected to your Interview Sessions Interface.
-                </li>
               </ul>
 
               <h1 style={{ fontSize: "20px" }}>
                 3. Entering a Job Role or Insert a PDF Resume file
               </h1>
-              <p>Depending on the <em>interview session</em> type you chose:</p>
+              <p>Depending on the <em>interview session type</em> you chose:</p>
               <ul>
                 <li>
                   <strong>Resume Mode:</strong>
@@ -67,7 +65,7 @@ export default function InstructionsPopup() {
                 <li>
                   <strong>Job Role Mode:</strong>
                   <ul>
-                    <li>Enter the job role you want to practice for (e.g., Software Engineer, Project Manager, Economist).</li>
+                    <li>Enter the job role you want to practice for (<em>e.g., Software Engineer, Project Manager, Economist</em>).</li>
                     <li>The system will use this role to generate AI responses that align with this job role.</li>
                   </ul>
                 </li>
@@ -76,14 +74,14 @@ export default function InstructionsPopup() {
               <h1 style={{ fontSize: "20px" }}>4. Chat Interface</h1>
               <p>Once your resume or job role is set:</p>
               <ul>
-                <li>You'll enter the <strong>Interview Chat</strong>.</li>
+                <li>You'll enter the <strong>Interview Chat</strong> page.</li>
                 <li>
                   Here you can:
                   <ul>
-                    <li>Chat with the AI Interviewer in real-time (Please note: some responses may experience delays.)</li>
+                    <li>Chat with the AI Interviewer in real-time (<em>Please note: some responses may experience delays.</em>)</li>
                     <li>Answer interview messages from the AI and receive responses.</li>
                     <li>
-                      Optionally use voice (if enabled) for a more natural experience (Please note: the voice input may not catch every word you say correctly)
+                      Optionally use voice input (if enabled) and play <strong>audio output</strong> for a more natural experience (<em>Please note: the voice input may not catch every word you say correctly</em>)
                     </li>
                   </ul>
                 </li>
@@ -92,15 +90,24 @@ export default function InstructionsPopup() {
               <h1 style={{ fontSize: "20px" }}>5. Return to Interview Sessions Interface</h1>
               <ul>
                 <li>
-                  At any time, you can return to the Interview Sessions Interface by clicking
-                  "Return to the Interview Sessions Interface"
+                  At any time, you can return to the <strong>Interview Sessions page</strong> by clicking
+                  <strong>"Return to Interview Sessions page"</strong> button.
                 </li>
                 <li>
                   This lets you start new sessions, review old ones, or continue where you left off.
                 </li>
               </ul>
 
-              <button onClick={() => setIsOpen(false)}>Close</button>
+              <h2 style={{ fontSize: "18px" }}>6. What the AI does:</h2>
+                <ul>
+                    <li>Provides detailed <strong>STAR feedback</strong> (Situation, Task, Action, Result) on your answers.</li>
+                    <li>Gives <strong>role-specific guidance</strong> based on your <em>job role</em> or <em>resume</em>.</li>
+                    <li>Asks <strong>follow-up questions</strong> to keep the conversation flowing naturally.</li>
+                    <li>Adjusts its <strong>tone</strong> based on your emotional state: Motivator, Strategist, or Interviewer.</li>
+                    <li>Encourages a realistic, dialogic interview experience, helping you practice for real job interviews.</li>
+                </ul>
+
+              <button className="closeInstructionPopup" onClick={() => setIsOpen(false) }>Close</button>
             </motion.div>
           </div>
         )}

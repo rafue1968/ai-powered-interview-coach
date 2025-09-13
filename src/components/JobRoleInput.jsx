@@ -1,13 +1,12 @@
 "use client";
 
-import { doc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
-export default function JobRoleInput({setJobRole, onComplete, sessionsRef, selectedSessionID, skipIfExists}){
+export default function JobRoleInput({onComplete, skipIfExists}){
     
     useEffect(() => {
         if (skipIfExists) {
-            onComplete();
+            onComplete(skipIfExists);
         }
     }, [skipIfExists, onComplete]);
     
@@ -15,18 +14,8 @@ export default function JobRoleInput({setJobRole, onComplete, sessionsRef, selec
     const handleSubmit = async (e) => {
         e.preventDefault();
         const input = e.target.elements.jobRole.value.trim();
-        
         if(!input) return;
-        
-        setJobRole(input);
-
-        const sessionDocRef = doc(sessionsRef, selectedSessionID);
-        await updateDoc(sessionDocRef, {
-            jobRole: input,
-            step: "ready"
-        })
-
-        onComplete();
+        onComplete(input);
     };
 
     return (

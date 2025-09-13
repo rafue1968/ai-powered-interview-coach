@@ -14,7 +14,7 @@ export default function NavigationButton(props){
 
     return (
         <div>
-            <button onClick={handleClick} type="submit" className="navButton" >{props.buttonText}</button>
+            <button onClick={handleClick} type="button" className={`navButton ${props.className}`} >{props.buttonText}</button>
         </div>
     )
 }
