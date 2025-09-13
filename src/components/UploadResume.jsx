@@ -43,7 +43,7 @@ export default function UploadResume({ onComplete, skipIfExists}){
             setSummary(data.summary);
             onComplete(data.summary);
         } catch (err) {
-            setError("Network or server error: " + err.message);
+            setError("Error: " + err.message);
         } finally {
             setUploading(false);
         }

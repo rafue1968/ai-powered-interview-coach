@@ -1,5 +1,4 @@
 import pdf from "pdf-parse";
-import mammoth from "mammoth";
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -56,6 +55,7 @@ export async function POST(req) {
         return NextResponse.json({ summary }, { status: 200 });
 
   } catch (error) {
+        console.log(error);
         return NextResponse.json(
           { error: 'Failed to summarise resume.' },
           { status: 500 }

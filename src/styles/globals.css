@@ -536,7 +536,7 @@ a[href]{
 .upload-error {
   margin-top: 0.5rem;
   font-size: 0.95rem;
-  color: #dc2626;
+  color: #ffffff;
   font-weight: 500;
 }
 
@@ -552,7 +552,7 @@ a[href]{
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #1e293b;
+  color: #ffffff;
 }
 
 .upload-summary pre {
