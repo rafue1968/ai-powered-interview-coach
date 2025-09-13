@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
+  typedRoutes: {
     typedRoutes: true,
   },
   output: "standalone",
