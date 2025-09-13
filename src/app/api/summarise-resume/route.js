@@ -21,8 +21,6 @@ export async function POST(req) {
 
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-
-      console.log("Uploaded File: ", file);
       const fileName = file.name.split(".").pop().toLowerCase();
 
       let extractedText = "";
@@ -30,14 +28,9 @@ export async function POST(req) {
       if (fileName === "pdf"){
         const data = await pdf(buffer);
         extractedText = data.text;
-      } else if (fileName === "docx") {
-        const result = await mammoth.extractRawText({ arrayBuffer});
-        extractedText = result.value;
-      } else if (fileName === "txt"){
-        extractedText = buffer.toString("utf-8");
       } else {
         return NextResponse.json(
-          { error: "Unsupported file type. Upload PDF, DOCX, or TXT."},
+          { error: "Unsupported file type. Upload PDF file."},
           { status: 400 }
         );
       }
@@ -63,7 +56,6 @@ export async function POST(req) {
         return NextResponse.json({ summary }, { status: 200 });
 
   } catch (error) {
-        console.error('Upload Resume Error:', error.message, error.stack);
         return NextResponse.json(
           { error: 'Failed to summarise resume.' },
           { status: 500 }
