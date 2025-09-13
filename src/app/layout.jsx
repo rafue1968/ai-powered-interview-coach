@@ -1,6 +1,5 @@
 "use client";
 
-// import "./globals.css";
 import "../styles/globals.css"
 // import { auth } from "../lib/firebaseAdmin";
 import { auth } from "../lib/firebaseClient";

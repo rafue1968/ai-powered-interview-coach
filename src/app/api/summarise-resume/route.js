@@ -53,12 +53,6 @@ export async function POST(req) {
 
       const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
 
-      // const prompt = `Please provide a concise summary of the key points from the following resume.
-      // Include: Candidate's name, career summary, skills, experience, and qualification.
-      // Resume Text:
-      // ${trimmedText}
-      // `;
-
         const prompt = `Summarise the following resume:\n\n${trimmedText}`
 
 
