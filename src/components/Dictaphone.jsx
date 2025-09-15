@@ -23,11 +23,6 @@ export default function Dictaphone({setTranscript, dictaphoneComplete, setListen
         }
     }, []);
 
-    // useEffect(() => {
-    //     if(setTranscript){
-    //         setTranscript(transcript)
-    //     }
-    // }, [transcript]);
 
     if (!browserSupportsSpeechRecognition) {
         return <span>Browser doesn't support speech recognition.</span>
@@ -56,8 +51,6 @@ export default function Dictaphone({setTranscript, dictaphoneComplete, setListen
         <div className="dictaphone-container">
             <button 
                 onClick={startListening} className="mic-button" style={{
-                    // width: "40px",
-                    // height: "40px",
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
@@ -77,7 +70,7 @@ export default function Dictaphone({setTranscript, dictaphoneComplete, setListen
             {dictaphone &&
                 <button 
                     onClick={stopListening} className="stop-button">
-                            Stop Recording
+                            Stop Listening
                 </button>
             }
         </div>

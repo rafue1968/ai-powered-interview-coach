@@ -6,8 +6,6 @@ body {
     margin: 0;
     font-family:'Segoe UI', sans-serif;
     background-color: #d9d6d0;
-    /* rgb(213, 206, 200); */
-    /* #c8c8c8; */
     color: #f5f5f5;
     padding: 1rem;
 
@@ -873,7 +871,7 @@ a[href]{
   position: fixed;
   z-index: 1000;
   bottom: 50px;
-  left: 5px;
+  left: 15px;
   font-weight: bold;
 }
 

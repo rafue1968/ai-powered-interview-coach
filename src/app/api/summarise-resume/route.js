@@ -15,9 +15,6 @@ export async function POST(req) {
       if (!file) {
         return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
       }
-
-      
-
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const fileName = file.name.split(".").pop().toLowerCase();
@@ -42,17 +39,12 @@ export async function POST(req) {
       }
 
       const trimmedText = extractedText.slice(0, 5000);
-
       const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
-
-        const prompt = `Summarise the following resume:\n\n${trimmedText}`
-
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const summary = response.text();
-
-        return NextResponse.json({ summary }, { status: 200 });
+      const prompt = `Summarise the following resume:\n\n${trimmedText}`
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const summary = response.text();
+      return NextResponse.json({ summary }, { status: 200 });
 
   } catch (error) {
         console.log(error);

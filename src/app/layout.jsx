@@ -1,7 +1,6 @@
 "use client";
 
 import "../styles/globals.css"
-// import { auth } from "../lib/firebaseAdmin";
 import { auth } from "../lib/firebaseClient";
 import ShowCurrentUserLogoutButton from "../components/ShowCurrentUserLogoutButton"
 import { useEffect, useState } from "react";

@@ -1,6 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
-// import { firestore } from "../../../../firebaseClient";
 import { db } from "../../../lib/firebaseAdmin";
 import constructGeminiPrompt from "../../../utils/constructGeminiPrompt"
 import { analyzeSentiment } from "../../../utils/sentimentAnalysisAPI"

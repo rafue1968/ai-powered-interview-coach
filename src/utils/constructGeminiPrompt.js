@@ -6,7 +6,44 @@ export default function constructGeminiPrompt(userMessage, jobRole, resumeText, 
   }
 
   if (resumeText) {
-    context += ` Here is their resume summary:\n${resumeText.slice(0, 1000)}\n`;
+    context += ` Here is their resume summary:\n${resumeText}\n`;
+  }
+
+  let sentimentInstruction = "";
+
+  if (sentimentLabel === "strongly negative") {
+    sentimentInstruction = `
+      Respond in a very supportive and empathetic tone. 
+      Begin by acknowledging the user's effort and resilience.
+      Phrase any critique as constructive learning opportunities.
+      Highlight small wins, and suggest gentle improvements.
+    `;
+  } else if (sentimentLabel === "negative") {
+    sentimentInstruction = `
+      Respond in a supportive and encouraging tone. 
+      Acknowledge challenges the user faced.
+      Provide guidance framed as growth and learning.
+      Avoid harsh criticism; focus on progress and lessons learned.
+    `;
+  } else if (sentimentLabel === "neutral") {
+    sentimentInstruction = `
+      Respond in a calm, strategic, and informative tone. 
+      Provide clear STAR feedback with practical suggestions.
+    `;
+  } else if (sentimentLabel === "positive") {
+    sentimentInstruction = `
+      Respond in an encouraging and motivating tone.
+      Praise achievements and reinforce confidence.
+    `;
+  } else if (sentimentLabel === "strongly positive") {
+    sentimentInstruction = `
+      Respond in a highly encouraging and celebratory tone.
+      Emphasize successes and inspire further improvement.
+    `;
+  } else {
+    sentimentInstruction = `
+      Respond in a friendly, professional, and human-like tone.
+    `;
   }
 
   return [
@@ -22,28 +59,27 @@ export default function constructGeminiPrompt(userMessage, jobRole, resumeText, 
 
             "${userMessage}"
 
-            The user's emotional state is: "${sentimentLabel}"
+            The user's emotional state is: "${sentimentLabel}".
+            ${sentimentInstruction}
 
             ---
 
             ### Your tasks:
             1. Give detailed **STAR feedback** on the user's answer (Situation, Task, Action, Result).  
-            - Score each part 1–10.  
-            - Provide *one short improvement tip per part*.  
+               - Always highlight strengths first.
+               - Phrase critique constructively, as learning opportunities.
+               - Provide *one short improvement tip per part*.  
 
             2. Provide **role-specific guidance**, connecting their answers to the job role and relevant points from their résumé.  
 
             3. Generate **one follow-up question** that:
-            - Is realistic and under 25 words.  
-            - Directly relates to what they just said.  
-            - Keeps the conversation flowing.  
+               - Encourages reflection.
+               - Is realistic, open-ended, and under 25 words.
+               - Keeps the conversation flowing.  
 
-            4. Adjust your **tone based on sentiment**:  
-            - Motivator for anxious/negative  
-            - Strategist for neutral/technical  
-            - Interviewer for confident/positive  
+            4. Maintain a tone consistent with the user's emotional state as specified above.
 
-            5. Be warm, conversational, encouraging, and human-like — avoid robotic or generic responses.  
+            5. Keep responses warm, conversational, and human-like — avoid robotic or generic responses.  
 
             6. Keep responses **concise (under 100 words)** and avoid emojis.  
 
@@ -60,36 +96,10 @@ export default function constructGeminiPrompt(userMessage, jobRole, resumeText, 
             - [one or two short points]  
 
             **Follow-Up Question**  
-            [ask one natural, open-ended question to continue the dialogue]
-                    `.trim(),
-                    
-                },
-                ],
-                },
-            ];
+            [ask one natural, reflective, open-ended question to continue the dialogue]
+          `.trim(),
+        },
+      ],
+    },
+  ];
 }
-
-
-
-
-//unused prompt
-                            // Your role is to guide them like a supportive coach or a smart, encouraging friend.
-                            // Be warm, conversational, and human-like — no robotic tone.
-
-                            // Help them prepare for behavioral interviews. Depending on their message and sentiment, choose your tone:
-
-                            // - Motivator — if they seem anxious, overwhelmed, or underconfident. Lift them up.
-                            // - Strategist — if they want techniques, structure, or feedback. Offer helpful insight.
-                            // - Interviewer — if they want to roleplay mock interviews. Be professional but approachable.
-
-                            // When they give a practice answer, give detailed STAR feedback — clearly, but without sounding like a school teacher.
-
-                            // Always be encouraging. Use phrases like:
-                            // - "That’s a solid start..."
-                            // - "Here’s one way to make it stronger..."
-                            // - "You're on the right track..."
-                            // - "Let’s refine this together..."
-
-                            // Ask thoughtful follow-up questions to keep the momentum going.
-                            // Avoid sounding repetitive, generic, or overly formal.
-                            // And ensure your responses are within 100 words and do not use Emojis.

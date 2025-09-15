@@ -107,15 +107,6 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
         timestamp: serverTimestamp(),
       });
 
-      // const voiceRes = await axios.post("/api/speak", {
-      //   aiText
-      // })
-
-      // const blob = await voiceRes.blob();
-      // const url = URL.createObjectURL(blob);
-      // const audio = new Audio(url);
-      // audio.play();
-
     } catch (err) {
       console.error("Gemini error:", err);
       await addDoc(firestoreInteractions, {
@@ -180,7 +171,7 @@ export default function InterviewChat({ user="", jobRole, resumeText, sessionId=
 
       <div className="input-area" style={{ display: "flex", gap: "0.5rem" }}>
         {listening ? 
-          <p>Recording has started<span className="dots"></span></p> :
+          <p>Star speaking now<span className="dots"></span> I'm listening!</p> :
           <textarea 
               type="text"
               placeholder={messages.length == 0 ? "Type your first response here to begin your mock interview..." : "Type your message..."}

@@ -36,7 +36,7 @@ export default function AudioTTSButton ({text}) {
 
     return (
         <button onClick={handlePlay} disabled={loading} className="speaker-button">
-            {loading ? `Loading${<span className="dots"></span>}` 
+            {loading ? `Loading...` 
                 : 
                 <div style={{
                     display: "flex",

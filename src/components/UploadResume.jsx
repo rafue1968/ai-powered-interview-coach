@@ -43,7 +43,7 @@ export default function UploadResume({ onComplete, skipIfExists}){
             setSummary(data.summary);
             onComplete(data.summary);
         } catch (err) {
-            setError("Error: " + err.message);
+            setError("Sorry. An Error occurred when processing your Resume.");
         } finally {
             setUploading(false);
         }
@@ -69,6 +69,7 @@ export default function UploadResume({ onComplete, skipIfExists}){
                                 setFile(selectedFile);
                             }
                         }}
+                        placeholder="Click here to Upload your PDF File"
                         required
                         className="upload-input"
                         style={{
@@ -82,15 +83,6 @@ export default function UploadResume({ onComplete, skipIfExists}){
 
                 {uploading && <p className="upload-status">Uploading and extracting text<span className="dots"></span></p>}
                 {error && <p className="upload-error">{error}</p>}
-
-                {/* {
-                    summary && (
-                        <div className="upload-summary">
-                            <h3>Resume Summary:</h3>
-                            <pre>{summary}</pre>
-                        </div>
-                    )
-                } */}
                 
             </div>
         </div>
