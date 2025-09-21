@@ -1,35 +1,61 @@
 import pdf from "pdf-parse";
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import formidable from "formidable";
+import fs from "fs/promises";
+import { Readable } from "stream";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 
 export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
+
+export const config = {
+  api: {
+    bodyParser: false,
+  }
+}
+
+function toNodeReadable(webStream){
+  return Readable.fromWeb(webStream)
+}
+
+function parseForm(req){
+  return new Promise((resolve, reject) => {
+    const form = formidable({multiples: false, keepExtensions: true});
+    form.parse(req, (err, fields, files) => {
+      if (err) reject(err);
+      else resolve({fields, files});
+    });
+  });
+}
 
 export async function POST(req) {
 
   try {
-      const formData = await req.formData();
-      const file = formData.get('file');
+      const nodeReq = toNodeReadable(req.body);
+      nodeReq.headers = Object.fromEntries(req.headers);
 
-      if (!file) {
+      const {files} = await parseForm(nodeReq);
+
+      if (!files.file) {
         return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
       }
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      const fileName = file.name.split(".").pop().toLowerCase();
 
-      let extractedText = "";
+      const uploaded = Array.isArray(files.file) ? files.file[0] : files.file;
+      const fileName = uploaded.originalFilename.split(".").pop().toLowerCase();
 
-      if (fileName === "pdf"){
-        const data = await pdf(buffer);
-        extractedText = data.text;
-      } else {
+      if (fileName !== "pdf"){
         return NextResponse.json(
-          { error: "Unsupported file type. Upload PDF file."},
+          { error: "Unsupported file type. Upload a PDF file." },
           { status: 400 }
-        );
+        )
       }
+
+      const buffer = await fs.readFile(uploaded.filepath);
+
+      const data = await pdf(buffer);
+      const extractedText = data.text;
 
       if (!extractedText.trim()){
         return NextResponse.json(
